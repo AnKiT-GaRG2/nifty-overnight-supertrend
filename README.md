@@ -53,3 +53,13 @@ Signal on bar close, fill at the next bar open; costs 0.025% per side plus 0.05%
 
 ## Data sources
 1-min Nifty spot (technovusin/nifty50-historical-data), Yahoo Finance daily series, NSE F&O bhavcopy (nsearchives.nseindia.com), HARI-KIRAN-REDDY/FIIDIIData, MrChartist/fii-dii-data. Respect each source's terms; none of it is redistributed here.
+
+## Rebuild on real futures (rf_*.py)
+After the real-futures replay showed the overnight edge was a spot-open artifact, the search was redone with P&L taken from actual NSE Nifty futures prices (daily open/close per contract, premium and open interest included). Signals are decided at 15:00 and filled at the last-30-minute VWAP; no spot-open fills.
+
+- `scripts/rf.py` framework (real futures legs, costs, roll), `rf_check.py` sanity check, `rf_search.py` 378-variant search + yearly walk-forward, `rf_round2.py` stability, sleeves, shorts, cost stress. Output: `results/rf_round2_output.txt`.
+- Best family: trend filter AND rising futures open interest, long-only (e.g. close above 50-day average and 5-day OI change > 0).
+- Total-return view (futures P&L + 6% interest on capital), full period 2017-26: 9.4% CAGR / -8.2% MaxDD / Sharpe 1.38 vs buy-and-hold futures 10.6% / -38.3% / 0.71. 2024-26: 4.2% / -7.1% vs 0.4% / -18.6%. Pure futures price P&L: 3.1% / -10.9% / 0.48.
+- Yearly walk-forward of the whole 378-variant selection (2021-26): 7.2% / -12.4% / Sharpe 0.96 vs buy-and-hold 8.1% / -18.6% / 0.63.
+- Stable across 24 neighbouring settings (CAGR 5.9-9.8%); at 3x costs still 6.8%. Shorts reduced Sharpe. Equal-weight blend of three sleeves: 9.1% / -6.2% / 1.40.
+- This is risk-managed long exposure: it cuts drawdown by about 80% for a similar return, it does not produce high CAGR. Daily data only; intraday futures data is still needed for anything faster.
