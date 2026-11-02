@@ -1,0 +1,28 @@
+CURRENT strategy (reference): train 23.4/-3.7/3.20 | valid 15.3/-3.1/2.48 | test 11.8/-5.8/1.79 | full 18.1/-5.8/2.64
+
+STANDALONE day sleeve, ranked by train+valid J (CAGR-|DD|). format CAGR/DD/Sharpe
+g=1.0  fade   long  | train   0.9/  -7.2/ 0.14 | valid  -0.1/  -2.3/-0.00 | test  -0.5/  -4.3/-0.19
+g=0.7  fade   long  | train   0.5/  -7.2/ 0.10 | valid  -0.5/  -2.9/-0.12 | test   0.1/  -5.1/ 0.05
+g=0.5  fade   long  | train  -0.1/  -9.6/ 0.04 | valid  -0.4/  -2.9/-0.09 | test  -0.6/  -9.5/-0.15
+g=0.7  fade   both  | train   2.4/ -11.1/ 0.27 | valid  -0.4/  -4.0/-0.07 | test  -0.4/  -7.5/-0.11
+g=1.0  fade   both  | train   2.8/  -9.2/ 0.31 | valid  -2.0/  -4.9/-0.58 | test  -0.9/  -6.2/-0.33
+g=0.3  fade   long  | train  -0.8/ -11.0/-0.04 | valid   0.2/  -5.1/ 0.07 | test  -2.8/ -13.0/-0.60
+g=0.4  fade   long  | train   0.1/ -11.0/ 0.05 | valid  -1.5/  -5.7/-0.33 | test  -1.2/  -9.6/-0.28
+g=1.0  follow long  | train  -3.0/ -15.6/-0.53 | valid   1.0/  -1.7/ 0.80 | test  -0.1/  -2.1/-0.09
+g=0.2  fade   long  | train  -2.0/ -15.1/-0.16 | valid  -1.1/  -5.4/-0.18 | test  -5.4/ -18.8/-1.06
+g=0.5  fade   both  | train  -0.4/ -16.7/ 0.03 | valid  -2.3/  -6.0/-0.36 | test  -1.9/ -18.4/-0.35
+g=1.0  follow both  | train  -5.0/ -26.0/-0.46 | valid  -0.2/  -3.3/-0.05 | test  -0.3/  -4.5/-0.08
+g=0.7  follow long  | train  -4.4/ -21.7/-0.70 | valid  -1.8/  -7.5/-0.56 | test  -0.7/  -4.9/-0.35
+
+all 24 configs: how many have positive CAGR in train / valid / test: 5 2 1 of 24
+
+CHOSEN on train+valid: g=1.0 fade long
+COMBINED = current night strategy + day sleeve (positions add; never above 1x since they do not overlap):
+train  current  23.4/  -3.7/ 3.20 | sleeve   0.9/  -7.2/ 0.14 | COMBINED  24.5/  -7.0/ 2.01
+valid  current  15.3/  -3.1/ 2.48 | sleeve  -0.1/  -2.3/-0.00 | COMBINED  15.4/  -3.2/ 2.28
+test   current  11.8/  -5.8/ 1.79 | sleeve  -0.5/  -4.3/-0.19 | COMBINED  11.4/  -6.9/ 1.59
+full   current  18.1/  -5.8/ 2.64 | sleeve   0.3/ -10.5/ 0.07 | COMBINED  18.5/  -7.0/ 1.89
+correlation of daily returns, sleeve vs current: 0.02
+days traded per year: 8, win rate 46%
+combined with 2x costs: full 11.0/-7.5/1.18 vs current at 2x 10.9/-6.3/1.66
+DONE

@@ -1,0 +1,5 @@
+data/
+*.pkl
+*.npy
+__pycache__/
+*.zip

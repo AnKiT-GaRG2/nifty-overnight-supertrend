@@ -1,0 +1,1 @@
+[["ShortDay", "brent21avg<90"], ["LongDay", "~sbin:r1>0"], ["ShortNight", "~kospi:r1>-1%"], ["LongDay", "~ftse:r21>5%"], ["ShortNight", "~bhartiartl:>sma50"]]

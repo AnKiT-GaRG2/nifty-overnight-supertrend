@@ -1,0 +1,79 @@
+=== 1. HEADLINE (strategy vs baseline; same engine, costs, carry) ===
+                                              CAGR%  MaxDD%  Sharpe  Sharpe_ex6%  trades/yr  avg|pos|
+BASELINE ST(14,3) long-only      train 17-21  21.86  -14.33    1.54         1.10      85.67      0.57
+                                 valid 22-23  11.99   -8.32    1.18         0.59      98.49      0.54
+                                 test 24-26    9.35   -7.30    0.92         0.35      85.04      0.53
+                                 post-2022    10.41   -8.32    1.03         0.45      90.43      0.53
+                                 FULL         15.93  -14.33    1.30         0.81      88.00      0.55
+OT  (exit 09:15, brief protocol) train 17-21   8.65   -3.06    3.59         1.05     134.78      0.01
+                                 valid 22-23   6.49   -2.02    2.38         0.16     135.52      0.01
+                                 test 24-26    5.81   -1.69    2.01        -0.08     129.59      0.01
+                                 post-2022     6.08   -2.02    2.16         0.02     131.81      0.01
+                                 FULL          7.34   -3.06    2.79         0.48     133.22      0.01
+OT-C (exit 09:30, conservative)  train 17-21   6.11   -3.92    2.20         0.03     134.78      0.02
+                                 valid 22-23   4.37   -1.96    1.47        -0.53     135.77      0.02
+                                 test 24-26    1.74   -4.29    0.55        -1.28     129.59      0.02
+                                 post-2022     2.81   -4.29    0.90        -0.99     131.91      0.02
+                                 FULL          4.43   -4.29    1.50        -0.52     133.22      0.02
+OT risk-dial k=1.5 (exit 09:15)  train 17-21  11.69   -4.06    3.59         1.69     134.78      0.01
+                                 valid 22-23   8.73   -2.69    2.38         0.71     135.52      0.01
+                                 test 24-26    7.80   -2.25    2.01         0.44     129.59      0.01
+                                 post-2022     8.16   -2.69    2.15         0.55     131.81      0.01
+                                 FULL          9.89   -4.06    2.80         1.06     133.22      0.01
+
+=== 2. TRADE STATISTICS (full period) ===
+OT  (exit 09:15, brief protocol): trades 1276, win rate 66%, avg 0.053%, avg win 0.159%, avg loss -0.151%, worst -0.94%, trades losing >1%: 0, >0.75%: 8
+    test 24-26: trades 367, win 59%, worst -0.92% on 2026-03-02, losing >1%: 0
+OT-C (exit 09:30, conservative): trades 1276, win rate 60%, avg 0.033%, avg win 0.168%, avg loss -0.167%, worst -1.78%, trades losing >1%: 3, >0.75%: 6
+    test 24-26: trades 367, win 53%, worst -1.78% on 2024-06-03, losing >1%: 1
+OT risk-dial k=1.5 (exit 09:15): trades 1276, win rate 66%, avg 0.071%, avg win 0.213%, avg loss -0.201%, worst -1.25%, trades losing >1%: 8, >0.75%: 15
+    test 24-26: trades 367, win 59%, worst -1.22% on 2026-03-02, losing >1%: 2
+
+=== 3. YEAR BY YEAR net return % ===
+      BASELINE ST(14,3) long-only  OT  (exit 09:15, brief protocol)  OT-C (exit 09:30, conservative)  OT risk-dial k=1.5 (exit 09:15)
+ts                                                                                                                                   
+2017                          5.0                               6.3                              1.2                              8.6
+2018                          9.6                               9.1                              6.3                             12.3
+2019                         13.6                               7.2                              3.6                              9.8
+2020                         40.8                               7.5                              6.0                             10.2
+2021                         38.8                              10.8                             12.2                             14.6
+2022                          8.3                               2.6                              2.6                              3.4
+2023                         15.6                              10.5                              6.1                             14.2
+2024                          7.0                               7.5                              1.1                             10.0
+2025                         13.7                               4.8                              1.8                              6.4
+2026                          5.8                               4.2                              2.0                              5.6
+
+correlation of daily returns OT vs BASELINE: 0.60
+
+=== 4. SENSITIVITY: Supertrend period x multiplier, OT sizing k=2 (Sharpe | MaxDD%) by period ===
+ST_n ST_mult  train_Sh  train_DD  train_CAGR  valid_Sh  valid_DD  valid_CAGR  test_Sh  test_DD  test_CAGR
+  10     2.5      3.47      -3.3         8.3      2.26      -2.1         6.3     1.64     -1.5        4.2
+  10     3.0      3.48      -3.1         8.2      2.35      -2.1         6.5     1.83     -1.8        5.2
+  10     3.5      3.50      -2.5         8.2      1.93      -1.8         5.3     1.73     -2.7        4.9
+  14     2.5      3.45      -3.3         8.3      2.18      -2.2         6.1     1.62     -1.5        4.1
+  14     3.0      3.59      -3.1         8.6      2.38      -2.0         6.5     2.01     -1.7        5.8
+  14     3.5      3.36      -2.3         8.1      1.78      -2.5         5.0     1.83     -2.7        5.2
+  20     2.5      3.44      -4.1         8.5      2.26      -1.9         6.3     1.70     -1.5        4.4
+  20     3.0      3.41      -3.9         8.3      1.94      -2.0         5.4     1.91     -2.0        5.5
+  20     3.5      3.21      -3.3         7.8      1.78      -2.5         5.1     1.67     -2.7        5.0
+
+--- sensitivity: sizing stress multiplier k (risk r=1%) ---
+  k  tr_CAGR  tr_DD  tr_Sh  va_CAGR  va_DD  va_Sh  te_CAGR  te_DD  te_Sh  worst_trade%  n>1%loss
+1.0     16.8   -6.0   3.54     11.4   -4.0   2.28     11.3   -3.4   2.00         -1.88        12
+1.5     11.7   -4.1   3.59      8.7   -2.7   2.38      7.8   -2.3   2.01         -1.25         8
+2.0      8.6   -3.1   3.59      6.5   -2.0   2.38      5.8   -1.7   2.01         -0.94         0
+3.0      5.7   -2.0   3.59      4.3   -1.3   2.38      3.8   -1.1   2.01         -0.63         0
+
+=== 5. COST STRESS (full period, OT exit 09:15 / OT-C exit 09:30 / BASELINE) ===
+            cost  OT_Sh  OT_CAGR  OT-C_Sh  OT-C_CAGR  BASE_Sh  BASE_CAGR
+1x (0.025%/side)   2.79      7.3     1.50        4.4     1.30       15.9
+2x (0.050%/side)   1.58      4.1     0.44        1.2     0.93       10.9
+3x (0.075%/side)   0.36      0.9    -0.63       -1.9     0.56        6.2
+
+=== 6. WALK-FORWARD: each year pick (ST n, mult) from 9-grid by trailing-3y Sharpe, apply next year ===
+OT        WF 2020-26: CAGR 6.6%  MaxDD -3.9%  Sharpe 2.37  (excess-6% 0.18)  picks [(2020, (20, 3.0)), (2021, (14, 3.0)), (2022, (14, 3.0)), (2023, (14, 3.0)), (2024, (14, 3.0)), (2025, (14, 3.0)), (2026, (10, 2.5))]
+           WF 2024-26 only: CAGR 5.3%  MaxDD -1.5%  Sharpe 1.86
+OT-C      WF 2020-26: CAGR 3.9%  MaxDD -4.3%  Sharpe 1.26  (excess-6% -0.68)  picks [(2020, (10, 2.5)), (2021, (10, 2.5)), (2022, (20, 2.5)), (2023, (14, 3.0)), (2024, (14, 3.0)), (2025, (10, 2.5)), (2026, (10, 2.5))]
+           WF 2024-26 only: CAGR 0.7%  MaxDD -4.3%  Sharpe 0.25
+BASELINE  WF 2020-26: CAGR 16.2%  MaxDD -14.5%  Sharpe 1.22  (excess-6% 0.77)  picks [(2020, (10, 2.5)), (2021, (10, 2.5)), (2022, (14, 3.0)), (2023, (14, 3.0)), (2024, (20, 2.5)), (2025, (14, 3.0)), (2026, (14, 3.0))]
+           WF 2024-26 only: CAGR 6.0%  MaxDD -9.0%  Sharpe 0.62
