@@ -1,0 +1,55 @@
+--- winner vs B&H, total-return (futures P&L + 6% interest on capital) and PURE futures price P&L
+B&H total                                                  train  16.7/ -38.3/0.93 | valid  11.9/ -15.3/0.88 | test   0.4/ -18.6/0.10 | full  10.6/ -38.3/0.71 
+WINNER total                                               train  25.7/ -10.1/2.04 | valid  23.9/  -5.2/2.57 | test   8.1/ -10.0/0.77 | full  19.8/ -10.1/1.73 
+B&H pure price                                             train   9.9/ -41.0/0.60 | valid   5.4/ -17.4/0.45 | test  -5.4/ -27.9/-0.35 | full   4.2/ -41.0/0.34 
+WINNER pure price                                          train  18.4/ -11.0/1.52 | valid  16.6/  -5.5/1.86 | test   1.8/ -14.9/0.22 | full  12.8/ -14.9/1.18 
+exposure 64% of days in market, round trips/yr 9.3
+
+--- ablation: drop one gate (and each gate alone)
+inr+us (no calendar)                                       train  24.9/ -14.8/1.82 | valid  21.0/  -9.3/1.95 | test   2.4/ -17.7/0.26 | full  17.0/ -17.7/1.38 
+inr+cal (no us10y)                                         train  24.0/ -10.2/1.88 | valid  13.7/ -14.1/1.21 | test   5.0/ -12.6/0.48 | full  15.9/ -14.1/1.33 
+us+cal (no rupee)                                          train  20.7/ -32.6/1.18 | valid  27.2/  -5.4/2.72 | test   8.1/  -9.7/0.74 | full  18.1/ -32.6/1.24 
+rupee only                                                 train  22.4/ -14.8/1.59 | valid   5.6/ -19.8/0.48 | test  -1.0/ -21.5/-0.02 | full  11.4/ -21.5/0.90 
+us10y only                                                 train  19.8/ -38.3/1.10 | valid  26.1/  -8.1/2.23 | test   3.2/ -15.3/0.32 | full  15.8/ -38.3/1.05 
+not Jan/Feb only                                           train  18.5/ -32.6/1.06 | valid  18.9/ -14.5/1.51 | test   5.7/ -11.3/0.51 | full  14.6/ -32.6/0.98 
+
+--- neighbouring thresholds (rupee 21d x US10Y 21d change, with not Jan/Feb)
+  rupee<1.0% us10y<0.00  train  13.3/  -9.6 | valid  15.8/  -2.7 | test  10.7/  -6.4 | full  13.0/  -9.6
+  rupee<1.0% us10y<0.15  train  21.8/ -11.5 | valid  14.8/  -4.2 | test  11.0/  -7.1 | full  17.0/ -11.5
+  rupee<1.0% us10y<0.25  train  24.4/ -10.1 | valid  17.5/  -4.4 | test  13.1/  -7.5 | full  19.5/ -10.1
+  rupee<1.0% us10y<0.40  train  22.7/ -12.3 | valid  17.6/  -5.3 | test  12.5/  -8.3 | full  18.5/ -12.3
+  rupee<1.0% us10y<0.60  train  22.9/ -12.3 | valid  11.2/ -11.6 | test   9.7/ -11.3 | full  16.4/ -12.3
+  rupee<1.5% us10y<0.00  train  13.8/ -10.4 | valid  15.1/  -4.0 | test   9.4/  -6.4 | full  12.7/ -10.4
+  rupee<1.5% us10y<0.15  train  23.2/ -10.1 | valid  12.1/  -5.5 | test   8.2/  -7.1 | full  16.2/ -10.1
+  rupee<1.5% us10y<0.25  train  25.7/ -10.1 | valid  15.1/  -6.5 | test  10.6/  -7.5 | full  18.8/ -10.1
+  rupee<1.5% us10y<0.40  train  24.2/ -10.6 | valid  14.2/  -6.6 | test  10.7/  -8.3 | full  17.9/ -10.6
+  rupee<1.5% us10y<0.60  train  24.4/ -10.6 | valid   9.6/ -15.6 | test   8.1/ -11.3 | full  16.2/ -15.6
+  rupee<2.0% us10y<0.00  train  12.8/ -10.4 | valid  20.4/  -4.2 | test   8.5/  -6.7 | full  13.0/ -10.4
+  rupee<2.0% us10y<0.15  train  22.1/ -10.1 | valid  17.7/  -5.1 | test   6.6/ -12.1 | full  16.4/ -12.1
+  rupee<2.0% us10y<0.25  train  25.7/ -10.1 | valid  23.9/  -5.2 | test   8.1/ -10.0 | full  19.8/ -10.1
+  rupee<2.0% us10y<0.40  train  23.8/ -10.2 | valid  21.8/  -5.9 | test   7.8/  -9.9 | full  18.4/ -10.2
+  rupee<2.0% us10y<0.60  train  24.0/ -10.2 | valid  16.7/ -12.7 | test   5.0/ -12.6 | full  16.6/ -12.7
+  rupee<3.0% us10y<0.00  train  13.4/ -10.4 | valid  23.2/  -5.4 | test   8.6/  -6.7 | full  13.9/ -10.4
+  rupee<3.0% us10y<0.15  train  21.3/ -10.1 | valid  19.8/  -5.4 | test   6.8/ -12.3 | full  16.5/ -12.3
+  rupee<3.0% us10y<0.25  train  25.5/ -10.1 | valid  26.1/  -5.4 | test   7.5/ -11.1 | full  20.0/ -11.1
+  rupee<3.0% us10y<0.40  train  23.3/ -10.2 | valid  24.1/  -7.0 | test   7.5/  -9.9 | full  18.5/ -10.2
+  rupee<3.0% us10y<0.60  train  23.5/ -10.2 | valid  19.8/ -13.0 | test   5.1/ -12.5 | full  17.0/ -13.0
+
+--- cost stress
+WINNER costs x1                                            train  25.7/ -10.1/2.04 | valid  23.9/  -5.2/2.57 | test   8.1/ -10.0/0.77 | full  19.8/ -10.1/1.73 
+WINNER costs x2                                            train  24.7/ -10.1/1.97 | valid  22.8/  -5.2/2.47 | test   7.2/ -10.9/0.69 | full  18.8/ -10.9/1.66 
+WINNER costs x3                                            train  23.6/ -10.2/1.90 | valid  21.7/  -5.3/2.37 | test   6.4/ -11.7/0.62 | full  17.8/ -11.7/1.58 
+
+--- legs
+WINNER night only                                          train   5.7/  -6.4/0.88 | valid   8.3/  -4.9/1.66 | test  -2.2/ -13.3/-0.32 | full   3.8/ -13.3/0.64 
+WINNER day only                                            train   7.4/ -11.3/0.78 | valid   8.5/  -3.8/1.32 | test   0.4/  -9.2/0.09 | full   5.5/ -11.3/0.65 
+
+--- calendar leakage check: drop Jan/Feb gate, add 20DMA/VIX guard instead (non-calendar, price/vol based)
+inr & us10y & vix<25 (no calendar)                         train  19.5/ -10.3/1.67 | valid  22.1/  -5.7/2.31 | test   0.5/ -21.1/0.10 | full  14.0/ -21.1/1.27 
+inr & us10y & trend200                                     train  13.8/  -9.5/1.39 | valid  14.5/  -7.7/1.81 | test   3.6/ -10.0/0.44 | full  10.8/ -10.0/1.18 
+
+--- ex-2026 test (2024-2025 only) for winner vs B&H
+  B&H: 7.9/-16.9/0.66
+  WINNER: 14.8/-6.7/1.29
+
+--- FII data staleness: last date of FII monthly file = 2026-01-27  (fii gates carry-forward after that)

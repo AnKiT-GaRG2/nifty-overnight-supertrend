@@ -1,0 +1,71 @@
+Nifty 4761 days, Bank Nifty from 2007-06-01  (10s)
+declared variants: 2646
+built 2646 variants in 11s
+
+HOLD Nifty futures (total view): disc   4.1/ -57.9/0.29 | val  17.2/ -38.3/1.02 | test   0.9/ -18.6/0.14
+null rates: variants meeting all 3 targets on discovery 0.5% (12), on validation 3.5% (92); on BOTH 0.0% (0)
+
+TOP 30 by discovery score -> validation (2017-23) CAGR/DD/Sharpe (test NOT shown)
+BankNifty trend50 S<=1 short=(1, 0.5) MR=0 size=(0.08, 1.0)                 disc  12.4/  -5.0/2.05 | val  10.8/  -7.5/1.60 
+BankNifty trend50 S<=1 short=(1, 0.5) MR=0 size=(0.08, 2.0)                 disc  12.4/  -5.0/2.05 | val  10.8/  -8.1/1.58 
+BankNifty trend50 S<=2 short=(1, 0.5) MR=0 size=(0.08, 1.0)                 disc  12.4/  -4.8/1.89 | val  12.2/  -6.6/1.71 
+BankNifty trend50 S<=2 short=(1, 0.5) MR=0 size=(0.08, 2.0)                 disc  12.4/  -4.8/1.89 | val  12.3/  -7.2/1.69 
+BankNifty trend50 S<=2 short=(1, 0.5) MR=0 size=(0.1, 2.0)                  disc  14.0/  -6.2/1.71 | val  13.8/  -9.5/1.52 
+BankNifty trend50 S<=2 short=(1, 0.5) MR=0 size=(0.1, 1.0)                  disc  14.0/  -6.2/1.71 | val  13.5/  -8.7/1.56 
+BankNifty trend50 S<=1 short=(1, 0.5) MR=0 size=(0.1, 2.0)                  disc  14.0/  -6.4/1.84 | val  11.9/ -10.7/1.40 
+BankNifty trend50 S<=1 short=(1, 0.5) MR=0 size=(0.1, 1.0)                  disc  14.0/  -6.4/1.84 | val  11.7/  -8.7/1.44 
+BankNifty trend50 S<=1 short=(2, 0.5) MR=0 size=(0.12, 2.0)                 disc  13.5/  -6.4/1.56 | val  12.8/ -11.8/1.29 
+BankNifty trend50 S<=1 short=(2, 0.5) MR=0 size=(0.1, 2.0)                  disc  12.3/  -5.3/1.70 | val  11.8/  -9.6/1.42 
+BankNifty trend50 S<=1 short=(2, 0.5) MR=0 size=(0.1, 1.0)                  disc  12.3/  -5.3/1.70 | val  11.5/  -7.6/1.47 
+BankNifty trend50 S<=2 short=(1, 0.5) MR=0 size=(0.12, 2.0)                 disc  15.5/  -7.5/1.58 | val  15.2/ -11.8/1.40 
+BankNifty trend50 S<=1 short=(2, 0.5) MR=0 size=(0.12, 1.0)                 disc  13.5/  -6.4/1.55 | val  12.3/  -8.3/1.39 
+BankNifty trend50 S<=1 short=(1, 0.5) MR=0 size=(0.12, 2.0)                 disc  15.5/  -7.9/1.71 | val  13.0/ -13.1/1.28 
+BankNifty trend50 S<=1 short=(2, 0.5) MR=0 size=(0.08, 2.0)                 disc  11.1/  -4.1/1.91 | val  10.7/  -7.2/1.61 
+BankNifty trend50 S<=1 short=(2, 0.5) MR=0 size=(0.08, 1.0)                 disc  11.1/  -4.1/1.91 | val  10.6/  -6.6/1.63 
+BankNifty trend50 S<=2 short=(1, 0.5) MR=0 size=(0.12, 1.0)                 disc  15.5/  -7.5/1.58 | val  14.6/ -10.9/1.48 
+BankNifty trend50 S<=1 short=(1, 0.5) MR=0 size=(0.12, 1.0)                 disc  15.5/  -7.9/1.70 | val  12.5/ -10.0/1.36 
+BankNifty trend50 S<=2 short=(2, 0.5) MR=0 size=(0.08, 2.0)                 disc  11.1/  -4.1/1.76 | val  12.1/  -7.1/1.71 
+BankNifty trend50 S<=2 short=(2, 0.5) MR=0 size=(0.08, 1.0)                 disc  11.1/  -4.1/1.76 | val  12.1/  -7.1/1.73 
+BankNifty trend50 S<=2 short=None MR=0 size=(0.08, 1.0)                     disc  11.4/  -4.2/1.90 | val  11.4/  -6.1/1.70 
+BankNifty trend50 S<=2 short=None MR=0 size=(0.08, 2.0)                     disc  11.4/  -4.2/1.90 | val  11.4/  -6.4/1.68 
+BankNifty trend50 S<=2 short=(2, 0.5) MR=0 size=(0.1, 2.0)                  disc  12.3/  -5.5/1.56 | val  13.6/  -9.5/1.54 
+BankNifty trend50 S<=2 short=(2, 0.5) MR=0 size=(0.1, 1.0)                  disc  12.3/  -5.5/1.56 | val  13.3/  -9.5/1.58 
+BankNifty trend50 S<=1 short=(2, 0.5) MR=0.5 size=(0.08, 1.0)               disc  11.0/  -4.2/1.90 | val  10.5/  -5.7/1.64 
+BankNifty trend50 S<=1 short=(2, 0.5) MR=0.5 size=(0.08, 2.0)               disc  11.0/  -4.2/1.90 | val  10.6/  -6.3/1.61 
+BankNifty trend50 S<=2 short=(2, 0.5) MR=0.5 size=(0.08, 1.0)               disc  10.9/  -4.4/1.75 | val  12.1/  -8.3/1.76 
+BankNifty trend50 S<=2 short=(2, 0.5) MR=0.5 size=(0.08, 2.0)               disc  10.9/  -4.4/1.75 | val  12.1/  -8.3/1.74 
+BankNifty trend50 S<=1 short=(1, 0.5) MR=0.5 size=(0.08, 2.0)               disc  12.3/  -4.7/2.06 | val  10.7/  -7.1/1.61 
+BankNifty trend50 S<=1 short=(1, 0.5) MR=0.5 size=(0.08, 1.0)               disc  12.3/  -4.7/2.06 | val  10.7/  -6.5/1.63 
+
+FINALIST (best validation Sharpe among top-30): BankNifty trend50 S<=2 short=(2, 0.5) MR=0.5 size=(0.08, 1.0)
+  validation passes all 3 targets: False   (top-30 variants passing validation: 0)
+
+=== TEST 2024-26, viewed once for the finalist ===
+FINALIST total return CAGR/MaxDD/Sharpe: 2.6% / -6.8% / 0.46   pure futures: -3.4% / -11.4% / -0.54
+HOLD Nifty futures total               : 0.9% / -18.6% / 0.14
+ACCEPTED (CAGR>15, |MaxDD|<10, Sharpe>1.0): False
+cost stress (total view, disc/val/test):
+  x1: disc  10.9/  -4.4/1.75 | val  12.1/  -8.3/1.76 | test   2.6/  -6.8/0.46
+  x3: disc  10.1/  -4.9/1.62 | val  10.6/  -8.9/1.56 | test   0.9/  -8.1/0.19
+year by year total return % (finalist / Hold):
+  2008:    4.9 /  -50.2
+  2009:   17.7 /   88.7
+  2010:   22.2 /   24.1
+  2011:   -0.7 /  -23.9
+  2012:   11.7 /   26.1
+  2013:    6.2 /    5.7
+  2014:   19.0 /   28.8
+  2015:    2.5 /   -5.0
+  2016:   16.9 /    3.2
+  2017:   23.9 /   32.3
+  2018:   14.8 /    6.4
+  2019:    8.6 /   11.8
+  2020:   18.9 /   20.6
+  2021:    5.0 /   26.8
+  2022:    3.2 /    7.4
+  2023:   11.3 /   17.2
+  2024:   -5.6 /    7.3
+  2025:   12.7 /    8.5
+  2026:    1.3 /  -11.9
+
+done 11s

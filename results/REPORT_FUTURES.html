@@ -1,0 +1,2123 @@
+<!doctype html><meta charset="utf-8"><title>Nifty Futures Backtest Report</title><style>@page{size:A4 landscape;margin:12mm}body{font-family:Helvetica,Arial,sans-serif;font-size:9.5pt;line-height:1.4;color:#111}
+h1{font-size:18pt}h2{font-size:13pt;margin-top:16px;border-bottom:1px solid #999;padding-bottom:2px}h3{font-size:11pt}
+table{border-collapse:collapse;width:100%;margin:8px 0;font-size:7.5pt}tr{page-break-inside:avoid}
+th,td{border:1px solid #bbb;padding:2px 4px;text-align:left}th{background:#eee}code{font-size:8pt;background:#f3f3f3}</style><h1>Nifty Futures: Popular Strategies and Trend(50) + Rising OI — Full Backtest Report</h1>
+<p>Research only, not investment advice. Prepared 2026-11-03. All results are on <strong>real NSE Nifty index futures</strong> (daily bhavcopy, 2017-04-03 to 2026-11-02, 2,367 trading days). The spot index is not used anywhere, and the earlier spot-based 18% result is dropped.</p>
+<h2>1. Verdict (short)</h2>
+<p><strong>Hinglish mein:</strong> Trend(50) + rising OI strategy, kharche (brokerage, STT, charges, slippage) ke baad, seedha Nifty futures pakadne se behtar <em>nahi</em> nikli. Train aur valid mein achhi thi (11.3% aur 10.1% CAGR, drawdown bahut kam), par test period (2024 se 2026) mein -8.5% CAGR aur -24% drawdown, jabki buy-and-hold -4.8% aur -26% tha. Parameter 30/40/60/80 par bhi test mein sab fail. Is hisaab se paper trading ka gate (kharche ke baad B&amp;H se behtar) abhi clear nahi hua.</p>
+<p><strong>In English:</strong></p>
+<ul>
+<li><strong>Trend(50) + rising OI fails the gate</strong> (net of all costs, beat futures buy-and-hold in every period). It beat buy-and-hold on CAGR, Sharpe and MaxDD in train and valid, but lost in test: -8.5% CAGR / -1.15 Sharpe / -23.9% MaxDD against buy-and-hold's -4.8% / -0.28 / -25.9%.</li>
+<li><strong>The parameter sweep suggests partial luck at N=50.</strong> With expiry-adjusted OI, N=50 is the only value that beats buy-and-hold on all three metrics in train. N=30/40/60/80 do not. All five values lose money in test.</li>
+<li><strong>Expiry handling matters.</strong> Naive total OI is corrupted by expiry: it falls about 23% on the day after each expiry, so "OI rising" is true on only 1% of those days versus 64% normally. Adjusting for it changes the results a lot (test CAGR -8.5% adjusted, -3.5% naive). That choice is itself a degree of freedom.</li>
+<li><strong>No strategy among the 35 tuned variants (about 20 families, long-only and long/short) beats futures buy-and-hold in all three periods and is also profitable in all three.</strong> Trend-following worked in train/valid and failed in test.</li>
+<li><strong>Deflated Sharpe for the headline is 0.37</strong> (a value near 0.95+ would be strong evidence). Its train+valid Sharpe of 1.19 is below the 1.33 that pure luck is expected to produce after ~2,350 trials.</li>
+<li><strong>Only a small, post-hoc "panic-reversal" idea is positive in all three periods</strong> (see section 9). It earns about 1 to 2% a year, unlevered, and was found with knowledge of the test period.</li>
+</ul>
+<h2>2. Method (what exactly was done)</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Instrument</td>
+<td>Nifty index futures, front-month contract not expiring on the entry day; rolled the day it expires</td>
+</tr>
+<tr>
+<td>Signal timing</td>
+<td>Computed from data through the close of day t, including that day's price, VIX and <strong>OI (published after close)</strong>. Orders fill at the <strong>next open (t+1)</strong>. Position is held open-to-open on the same contract.</td>
+</tr>
+<tr>
+<td>Costs</td>
+<td>Brokerage, STT (date-dependent), exchange, SEBI, GST, stamp duty and slippage on every position change, plus a roll cost when a position is carried through expiry. Details in section 5.</td>
+</tr>
+<tr>
+<td>Interest/carry</td>
+<td>None added. Futures prices already contain the premium, so a long pays it and the buy-and-hold benchmark pays it too. If idle capital sits in a liquid fund (about 6.5%/yr), roughly that much is added to every strategy and to buy-and-hold equally; this does not change the comparison.</td>
+</tr>
+<tr>
+<td>Periods (fixed in advance)</td>
+<td><strong>Train</strong> 2018-04-01 to 2021-12-31, <strong>Valid</strong> 2022-01-01 to 2023-12-31, <strong>Test</strong> 2024-01-01 to 2026-11-02. The first year of data is indicator warm-up.</td>
+</tr>
+<tr>
+<td>Parameter selection</td>
+<td>"Default" = textbook values, no fitting. "Tuned" = best net Sharpe on <strong>train only</strong>. Shortlist = Sharpe above 0.5 and CAGR above 0 in both train and valid. Test was never used to choose or change anything in this run.</td>
+</tr>
+<tr>
+<td>Benchmark</td>
+<td>Always-long Nifty futures, same costs and same roll rule</td>
+</tr>
+<tr>
+<td>Regimes</td>
+<td>Trend (price vs 200DMA), India VIX band (&lt;15, 15-22, &gt;22), 20-day momentum (+/-3%), drawdown from high (&gt;10%). Each label uses information only up to the previous close.</td>
+</tr>
+</tbody>
+</table>
+<h2>3. Results — textbook parameters, no fitting (CAGR% / Sharpe / MaxDD%, net of all costs)</h2>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Train CAGR/Sharpe/MaxDD</th>
+<th>Valid</th>
+<th>Test</th>
+<th>Full</th>
+<th>Exposure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Trend(50) only [no OI]</td>
+<td>15.1 / 1.31 / -12.6</td>
+<td>1.6 / 0.22 / -16.8</td>
+<td>-4.6 / -0.50 / -15.7</td>
+<td>5.1 / 0.55 / -17.7</td>
+<td>58%</td>
+</tr>
+<tr>
+<td>EMA cross 12/26 [long-only]</td>
+<td>14.9 / 1.23 / -13.1</td>
+<td>6.9 / 0.79 / -7.9</td>
+<td>-5.2 / -0.51 / -17.3</td>
+<td>6.0 / 0.61 / -17.3</td>
+<td>59%</td>
+</tr>
+<tr>
+<td>Trend(N)+OI sma20 [expiry-adj OI]</td>
+<td>13.5 / 1.22 / -13.3</td>
+<td>5.8 / 0.72 / -10.9</td>
+<td>-3.3 / -0.36 / -11.6</td>
+<td>5.9 / 0.65 / -13.3</td>
+<td>53%</td>
+</tr>
+<tr>
+<td>SMA cross 20/50 [long-only]</td>
+<td>14.2 / 1.13 / -17.7</td>
+<td>-4.4 / -0.44 / -18.0</td>
+<td>-0.6 / -0.02 / -10.8</td>
+<td>4.6 / 0.47 / -23.9</td>
+<td>60%</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg5 [expiry-adj OI]</td>
+<td>11.3 / 1.11 / -11.7</td>
+<td>10.1 / 1.47 / -4.4</td>
+<td>-8.5 / -1.15 / -23.9</td>
+<td>4.0 / 0.50 / -23.9</td>
+<td>43%</td>
+</tr>
+<tr>
+<td>Bollinger breakout (20,2)</td>
+<td>7.5 / 1.04 / -9.5</td>
+<td>8.8 / 1.43 / -4.3</td>
+<td>-10.0 / -2.04 / -25.5</td>
+<td>1.6 / 0.28 / -25.8</td>
+<td>21%</td>
+</tr>
+<tr>
+<td>Supertrend daily (10,3) [long-only]</td>
+<td>11.9 / 1.03 / -20.0</td>
+<td>10.2 / 1.20 / -7.0</td>
+<td>-12.5 / -1.36 / -32.0</td>
+<td>2.8 / 0.32 / -32.0</td>
+<td>56%</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg1 [expiry-adj OI]</td>
+<td>9.7 / 1.01 / -10.8</td>
+<td>0.4 / 0.10 / -10.7</td>
+<td>-2.9 / -0.42 / -12.3</td>
+<td>3.2 / 0.43 / -12.3</td>
+<td>36%</td>
+</tr>
+<tr>
+<td>Keltner breakout (20,2)</td>
+<td>8.3 / 0.96 / -9.9</td>
+<td>3.5 / 0.56 / -9.6</td>
+<td>-6.6 / -1.20 / -18.3</td>
+<td>2.0 / 0.31 / -18.3</td>
+<td>30%</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg1 [naive OI]</td>
+<td>8.1 / 0.90 / -11.0</td>
+<td>-1.9 / -0.23 / -11.2</td>
+<td>-0.8 / -0.10 / -10.9</td>
+<td>2.7 / 0.38 / -12.2</td>
+<td>34%</td>
+</tr>
+<tr>
+<td>Price &gt; 200DMA [long-only]</td>
+<td>9.3 / 0.81 / -19.7</td>
+<td>-1.9 / -0.14 / -17.4</td>
+<td>-4.2 / -0.43 / -22.1</td>
+<td>2.1 / 0.25 / -22.1</td>
+<td>64%</td>
+</tr>
+<tr>
+<td>EMA cross 12/26 [L/S]</td>
+<td>15.3 / 0.81 / -22.9</td>
+<td>5.7 / 0.46 / -10.0</td>
+<td>-7.2 / -0.46 / -25.2</td>
+<td>5.1 / 0.38 / -25.2</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Donchian 20/10 (turtle)</td>
+<td>8.3 / 0.80 / -20.9</td>
+<td>6.4 / 0.82 / -7.9</td>
+<td>-8.4 / -1.06 / -22.6</td>
+<td>2.0 / 0.27 / -22.6</td>
+<td>43%</td>
+</tr>
+<tr>
+<td>SMA cross 20/50 [L/S]</td>
+<td>14.1 / 0.76 / -27.3</td>
+<td>-15.5 / -1.10 / -32.8</td>
+<td>2.0 / 0.21 / -16.9</td>
+<td>2.6 / 0.23 / -43.8</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Buy &amp; Hold futures</td>
+<td>11.0 / 0.62 / -40.7</td>
+<td>6.0 / 0.48 / -17.8</td>
+<td>-4.8 / -0.28 / -25.9</td>
+<td>4.4 / 0.34 / -40.7</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>MACD 12/26/9 [long-only]</td>
+<td>6.3 / 0.59 / -16.4</td>
+<td>9.9 / 1.10 / -10.9</td>
+<td>-5.8 / -0.63 / -17.4</td>
+<td>2.9 / 0.33 / -17.6</td>
+<td>48%</td>
+</tr>
+<tr>
+<td>ADX/DI trend (14,25) [long-only]</td>
+<td>3.4 / 0.57 / -9.1</td>
+<td>0.1 / 0.04 / -5.8</td>
+<td>-1.6 / -0.55 / -6.6</td>
+<td>0.9 / 0.21 / -10.0</td>
+<td>17%</td>
+</tr>
+<tr>
+<td>Connors RSI(2) 10/70</td>
+<td>4.1 / 0.57 / -9.1</td>
+<td>-1.8 / -0.31 / -7.0</td>
+<td>4.6 / 0.97 / -3.1</td>
+<td>2.8 / 0.48 / -10.8</td>
+<td>15%</td>
+</tr>
+<tr>
+<td>Trend(N)+OI sma20 [naive OI]</td>
+<td>4.3 / 0.55 / -9.0</td>
+<td>1.3 / 0.23 / -7.8</td>
+<td>-0.3 / -0.02 / -6.0</td>
+<td>2.1 / 0.33 / -9.5</td>
+<td>28%</td>
+</tr>
+<tr>
+<td>Supertrend daily (10,3) [L/S]</td>
+<td>9.4 / 0.55 / -30.6</td>
+<td>12.1 / 0.87 / -12.4</td>
+<td>-21.1 / -1.62 / -51.9</td>
+<td>-1.3 / 0.01 / -51.9</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Long build-up (price&amp;OI up over k) [expiry-adj OI]</td>
+<td>5.3 / 0.54 / -17.8</td>
+<td>12.0 / 1.56 / -7.8</td>
+<td>-10.1 / -1.54 / -26.5</td>
+<td>1.3 / 0.20 / -27.3</td>
+<td>41%</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg5 [naive OI]</td>
+<td>4.2 / 0.51 / -9.9</td>
+<td>5.5 / 0.93 / -3.6</td>
+<td>-3.5 / -0.57 / -12.0</td>
+<td>1.9 / 0.29 / -12.0</td>
+<td>31%</td>
+</tr>
+<tr>
+<td>Time-series momentum 252d [long-only]</td>
+<td>5.4 / 0.48 / -22.0</td>
+<td>-2.8 / -0.16 / -18.8</td>
+<td>-8.2 / -0.76 / -31.6</td>
+<td>-1.2 / -0.04 / -31.8</td>
+<td>68%</td>
+</tr>
+<tr>
+<td>Donchian 55/20</td>
+<td>3.1 / 0.36 / -17.6</td>
+<td>2.5 / 0.42 / -8.8</td>
+<td>-5.4 / -0.72 / -15.8</td>
+<td>0.1 / 0.05 / -17.6</td>
+<td>38%</td>
+</tr>
+<tr>
+<td>Price &gt; 200DMA [L/S]</td>
+<td>4.5 / 0.32 / -32.5</td>
+<td>-10.6 / -0.71 / -31.1</td>
+<td>-5.3 / -0.32 / -34.3</td>
+<td>-2.4 / -0.06 / -44.4</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>SMA cross 50/200 [long-only]</td>
+<td>2.2 / 0.23 / -39.6</td>
+<td>0.8 / 0.12 / -14.9</td>
+<td>-0.9 / -0.04 / -18.1</td>
+<td>0.8 / 0.13 / -39.6</td>
+<td>64%</td>
+</tr>
+<tr>
+<td>ADX/DI trend (14,25) [L/S]</td>
+<td>2.3 / 0.22 / -25.2</td>
+<td>-5.6 / -0.61 / -17.7</td>
+<td>-0.3 / 0.02 / -10.9</td>
+<td>-0.4 / 0.03 / -33.9</td>
+<td>37%</td>
+</tr>
+<tr>
+<td>Buy-the-dip (-1.5 sigma)</td>
+<td>0.8 / 0.16 / -8.6</td>
+<td>-1.3 / -0.25 / -6.8</td>
+<td>4.1 / 0.73 / -5.5</td>
+<td>1.4 / 0.27 / -8.6</td>
+<td>8%</td>
+</tr>
+<tr>
+<td>IBS mean-reversion</td>
+<td>1.3 / 0.16 / -32.9</td>
+<td>-3.1 / -0.28 / -9.4</td>
+<td>-0.9 / -0.04 / -13.1</td>
+<td>-0.5 / 0.02 / -32.9</td>
+<td>41%</td>
+</tr>
+<tr>
+<td>Bollinger mean-rev (20,2)</td>
+<td>1.0 / 0.14 / -31.5</td>
+<td>2.4 / 0.33 / -5.8</td>
+<td>4.5 / 0.54 / -10.3</td>
+<td>2.4 / 0.27 / -31.5</td>
+<td>23%</td>
+</tr>
+<tr>
+<td>Long build-up (price&amp;OI up over k) [naive OI]</td>
+<td>0.7 / 0.12 / -13.3</td>
+<td>5.8 / 0.93 / -9.4</td>
+<td>-7.1 / -1.48 / -18.6</td>
+<td>-0.8 / -0.08 / -20.3</td>
+<td>29%</td>
+</tr>
+<tr>
+<td>Stochastic mean-rev (14,20/80)</td>
+<td>0.3 / 0.10 / -33.9</td>
+<td>-1.7 / -0.11 / -11.9</td>
+<td>-0.8 / -0.03 / -16.6</td>
+<td>-0.5 / 0.03 / -33.9</td>
+<td>42%</td>
+</tr>
+<tr>
+<td>MACD 12/26/9 [L/S]</td>
+<td>-1.7 / 0.02 / -31.0</td>
+<td>11.7 / 0.84 / -15.9</td>
+<td>-8.5 / -0.56 / -33.3</td>
+<td>-1.1 / 0.02 / -41.1</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Time-series momentum 252d [L/S]</td>
+<td>-2.0 / -0.00 / -44.3</td>
+<td>-11.7 / -0.79 / -30.7</td>
+<td>-12.8 / -0.91 / -45.0</td>
+<td>-8.0 / -0.40 / -62.2</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>RSI(14) 30/50 mean-rev</td>
+<td>-2.3 / -0.11 / -31.7</td>
+<td>6.2 / 1.23 / -4.5</td>
+<td>-0.9 / -0.07 / -11.0</td>
+<td>0.1 / 0.06 / -31.7</td>
+<td>13%</td>
+</tr>
+<tr>
+<td>SMA cross 50/200 [L/S]</td>
+<td>-8.0 / -0.31 / -58.4</td>
+<td>-5.5 / -0.32 / -28.6</td>
+<td>1.5 / 0.17 / -23.0</td>
+<td>-4.4 / -0.18 / -58.4</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+<h2>4. Results — parameters tuned on train only</h2>
+<table>
+<thead>
+<tr>
+<th>Strategy (params chosen on TRAIN)</th>
+<th>Train CAGR/Sharpe/MaxDD</th>
+<th>Valid</th>
+<th>Test</th>
+<th>Full</th>
+<th>Exposure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Connors RSI(2) 10/70 {'w': 4, 'lo': 10, 'hi': 80}</td>
+<td>5.2 / 1.46 / -0.4</td>
+<td>1.0 / 0.18 / -11.6</td>
+<td>-3.0 / -0.61 / -12.7</td>
+<td>1.4 / 0.31 / -13.5</td>
+<td>8%</td>
+</tr>
+<tr>
+<td>SMA cross 20/50 [long-only] {'a': 30, 'b': 50}</td>
+<td>17.5 / 1.35 / -12.2</td>
+<td>-7.8 / -0.79 / -18.3</td>
+<td>-0.8 / -0.04 / -11.4</td>
+<td>5.0 / 0.50 / -26.7</td>
+<td>60%</td>
+</tr>
+<tr>
+<td>Price &gt; 200DMA [long-only] {'w': 50}</td>
+<td>15.1 / 1.31 / -12.6</td>
+<td>1.6 / 0.22 / -16.8</td>
+<td>-4.6 / -0.50 / -15.7</td>
+<td>5.1 / 0.55 / -17.7</td>
+<td>58%</td>
+</tr>
+<tr>
+<td>Trend(50) only [no OI] {'w': 50}</td>
+<td>15.1 / 1.31 / -12.6</td>
+<td>1.6 / 0.22 / -16.8</td>
+<td>-4.6 / -0.50 / -15.7</td>
+<td>5.1 / 0.55 / -17.7</td>
+<td>58%</td>
+</tr>
+<tr>
+<td>MACD 12/26/9 [long-only] {'a': 16, 'b': 40, 's': 9}</td>
+<td>15.9 / 1.30 / -10.3</td>
+<td>12.6 / 1.37 / -9.8</td>
+<td>-9.1 / -1.05 / -25.2</td>
+<td>6.2 / 0.64 / -25.5</td>
+<td>50%</td>
+</tr>
+<tr>
+<td>EMA cross 12/26 [long-only] {'a': 12, 'b': 26}</td>
+<td>14.9 / 1.23 / -13.1</td>
+<td>6.9 / 0.79 / -7.9</td>
+<td>-5.2 / -0.51 / -17.3</td>
+<td>6.0 / 0.61 / -17.3</td>
+<td>59%</td>
+</tr>
+<tr>
+<td>Trend(N)+OI sma20 [expiry-adj OI] {'N': 50}</td>
+<td>13.5 / 1.22 / -13.3</td>
+<td>5.8 / 0.72 / -10.9</td>
+<td>-3.3 / -0.36 / -11.6</td>
+<td>5.9 / 0.65 / -13.3</td>
+<td>53%</td>
+</tr>
+<tr>
+<td>Bollinger breakout (20,2) {'w': 30, 'k': 2.5}</td>
+<td>9.1 / 1.14 / -9.1</td>
+<td>1.9 / 0.69 / -2.3</td>
+<td>-1.3 / -0.69 / -4.7</td>
+<td>3.9 / 0.72 / -9.1</td>
+<td>15%</td>
+</tr>
+<tr>
+<td>Supertrend daily (10,3) [long-only] {'w': 7, 'm': 2.0}</td>
+<td>12.4 / 1.13 / -13.2</td>
+<td>13.8 / 1.43 / -11.1</td>
+<td>-6.1 / -0.71 / -19.1</td>
+<td>6.2 / 0.66 / -19.1</td>
+<td>55%</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg5 [expiry-adj OI] {'N': 50}</td>
+<td>11.3 / 1.11 / -11.7</td>
+<td>10.1 / 1.47 / -4.4</td>
+<td>-8.5 / -1.15 / -23.9</td>
+<td>4.0 / 0.50 / -23.9</td>
+<td>43%</td>
+</tr>
+<tr>
+<td>SMA cross 20/50 [L/S] {'a': 30, 'b': 50}</td>
+<td>20.9 / 1.05 / -22.2</td>
+<td>-21.2 / -1.59 / -39.1</td>
+<td>1.6 / 0.18 / -13.5</td>
+<td>3.3 / 0.28 / -48.5</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg1 [expiry-adj OI] {'N': 50}</td>
+<td>9.7 / 1.01 / -10.8</td>
+<td>0.4 / 0.10 / -10.7</td>
+<td>-2.9 / -0.42 / -12.3</td>
+<td>3.2 / 0.43 / -12.3</td>
+<td>36%</td>
+</tr>
+<tr>
+<td>Keltner breakout (20,2) {'w': 20, 'm': 1.5}</td>
+<td>8.8 / 0.98 / -12.7</td>
+<td>6.7 / 0.95 / -7.2</td>
+<td>-7.0 / -1.20 / -19.1</td>
+<td>2.8 / 0.40 / -19.1</td>
+<td>35%</td>
+</tr>
+<tr>
+<td>Long build-up (price&amp;OI up over k) [expiry-adj OI] {'k': 20}</td>
+<td>11.2 / 0.97 / -13.1</td>
+<td>8.5 / 0.98 / -10.9</td>
+<td>-9.4 / -1.12 / -25.7</td>
+<td>3.3 / 0.38 / -25.7</td>
+<td>55%</td>
+</tr>
+<tr>
+<td>SMA cross 50/200 [long-only] {'a': 20, 'b': 100}</td>
+<td>11.2 / 0.94 / -15.8</td>
+<td>0.3 / 0.08 / -11.4</td>
+<td>0.6 / 0.11 / -10.8</td>
+<td>5.0 / 0.52 / -18.2</td>
+<td>60%</td>
+</tr>
+<tr>
+<td>Donchian 20/10 (turtle) {'en': 40, 'ex': 10}</td>
+<td>8.6 / 0.91 / -13.7</td>
+<td>0.1 / 0.05 / -12.3</td>
+<td>-3.8 / -0.53 / -13.7</td>
+<td>2.4 / 0.33 / -16.1</td>
+<td>36%</td>
+</tr>
+<tr>
+<td>Donchian 55/20 {'en': 40, 'ex': 10}</td>
+<td>8.6 / 0.91 / -13.7</td>
+<td>0.1 / 0.05 / -12.3</td>
+<td>-3.8 / -0.53 / -13.7</td>
+<td>2.4 / 0.33 / -16.1</td>
+<td>36%</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg1 [naive OI] {'N': 50}</td>
+<td>8.1 / 0.90 / -11.0</td>
+<td>-1.9 / -0.23 / -11.2</td>
+<td>-0.8 / -0.10 / -10.9</td>
+<td>2.7 / 0.38 / -12.2</td>
+<td>34%</td>
+</tr>
+<tr>
+<td>Time-series momentum 252d [long-only] {'w': 63}</td>
+<td>10.3 / 0.89 / -12.8</td>
+<td>5.7 / 0.66 / -9.3</td>
+<td>-6.0 / -0.69 / -18.3</td>
+<td>3.6 / 0.40 / -18.3</td>
+<td>60%</td>
+</tr>
+<tr>
+<td>MACD 12/26/9 [L/S] {'a': 16, 'b': 40, 's': 9}</td>
+<td>17.2 / 0.89 / -14.6</td>
+<td>17.4 / 1.19 / -11.0</td>
+<td>-14.9 / -1.08 / -41.0</td>
+<td>5.4 / 0.40 / -41.0</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Price &gt; 200DMA [L/S] {'w': 50}</td>
+<td>15.6 / 0.82 / -22.2</td>
+<td>-4.4 / -0.24 / -23.0</td>
+<td>-6.2 / -0.39 / -23.5</td>
+<td>3.2 / 0.27 / -30.7</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>EMA cross 12/26 [L/S] {'a': 12, 'b': 26}</td>
+<td>15.3 / 0.81 / -22.9</td>
+<td>5.7 / 0.46 / -10.0</td>
+<td>-7.2 / -0.46 / -25.2</td>
+<td>5.1 / 0.38 / -25.2</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Bollinger mean-rev (20,2) {'w': 10, 'k': 2.5}</td>
+<td>0.2 / 0.70 / -0.1</td>
+<td>0.0 / 0.00 / 0.0</td>
+<td>0.0 / 0.00 / 0.0</td>
+<td>0.1 / 0.46 / -0.1</td>
+<td>0%</td>
+</tr>
+<tr>
+<td>Long build-up (price&amp;OI up over k) [naive OI] {'k': 20}</td>
+<td>4.9 / 0.63 / -9.1</td>
+<td>5.6 / 0.93 / -4.4</td>
+<td>-4.9 / -0.78 / -18.5</td>
+<td>1.7 / 0.28 / -18.5</td>
+<td>28%</td>
+</tr>
+<tr>
+<td>ADX/DI trend (14,25) [long-only] {'w': 14, 'th': 30}</td>
+<td>3.1 / 0.61 / -5.9</td>
+<td>1.7 / 0.43 / -4.3</td>
+<td>-0.5 / -0.27 / -2.8</td>
+<td>1.6 / 0.40 / -5.9</td>
+<td>11%</td>
+</tr>
+<tr>
+<td>Supertrend daily (10,3) [L/S] {'w': 7, 'm': 2.0}</td>
+<td>10.1 / 0.58 / -23.1</td>
+<td>19.8 / 1.33 / -11.5</td>
+<td>-9.3 / -0.62 / -30.2</td>
+<td>5.3 / 0.39 / -30.2</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Trend(N)+OI sma20 [naive OI] {'N': 50}</td>
+<td>4.3 / 0.55 / -9.0</td>
+<td>1.3 / 0.23 / -7.8</td>
+<td>-0.3 / -0.02 / -6.0</td>
+<td>2.1 / 0.33 / -9.5</td>
+<td>28%</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg5 [naive OI] {'N': 50}</td>
+<td>4.2 / 0.51 / -9.9</td>
+<td>5.5 / 0.93 / -3.6</td>
+<td>-3.5 / -0.57 / -12.0</td>
+<td>1.9 / 0.29 / -12.0</td>
+<td>31%</td>
+</tr>
+<tr>
+<td>SMA cross 50/200 [L/S] {'a': 20, 'b': 100}</td>
+<td>8.0 / 0.48 / -29.0</td>
+<td>-6.8 / -0.42 / -21.7</td>
+<td>4.3 / 0.37 / -15.8</td>
+<td>3.2 / 0.27 / -29.0</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>ADX/DI trend (14,25) [L/S] {'w': 14, 'th': 30}</td>
+<td>5.5 / 0.43 / -19.0</td>
+<td>-4.7 / -0.77 / -12.4</td>
+<td>-2.3 / -0.25 / -10.2</td>
+<td>0.4 / 0.10 / -28.4</td>
+<td>23%</td>
+</tr>
+<tr>
+<td>Time-series momentum 252d [L/S] {'w': 63}</td>
+<td>6.3 / 0.40 / -27.3</td>
+<td>3.4 / 0.31 / -18.8</td>
+<td>-9.0 / -0.60 / -26.0</td>
+<td>0.3 / 0.10 / -31.2</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Stochastic mean-rev (14,20/80) {'w': 14, 'lo': 30, 'hi': 70}</td>
+<td>3.7 / 0.31 / -33.8</td>
+<td>-1.9 / -0.13 / -11.6</td>
+<td>1.1 / 0.16 / -13.4</td>
+<td>1.5 / 0.18 / -33.8</td>
+<td>42%</td>
+</tr>
+<tr>
+<td>IBS mean-reversion {'lo': 0.1, 'hi': 0.8}</td>
+<td>2.6 / 0.31 / -11.7</td>
+<td>1.1 / 0.25 / -6.1</td>
+<td>2.9 / 0.46 / -7.9</td>
+<td>2.3 / 0.33 / -11.7</td>
+<td>18%</td>
+</tr>
+<tr>
+<td>Buy-the-dip (-1.5 sigma) {'th': 1.0}</td>
+<td>1.8 / 0.25 / -11.2</td>
+<td>-0.5 / -0.04 / -6.9</td>
+<td>3.2 / 0.47 / -8.5</td>
+<td>1.7 / 0.26 / -11.2</td>
+<td>16%</td>
+</tr>
+<tr>
+<td>RSI(14) 30/50 mean-rev {'w': 21, 'lo': 30, 'hi': 60}</td>
+<td>0.5 / 0.11 / -31.5</td>
+<td>0.0 / 0.00 / 0.0</td>
+<td>-4.4 / -0.42 / -18.8</td>
+<td>-1.3 / -0.05 / -31.5</td>
+<td>23%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Scoreboard: does the tuned strategy beat futures buy-and-hold (higher CAGR, higher Sharpe and shallower MaxDD) in each period, and is its CAGR positive?</strong></p>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>beats B&amp;H on CAGR+Sharpe+MaxDD: Train</th>
+<th>Valid</th>
+<th>Test</th>
+<th>Positive CAGR: Train/Valid/Test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ADX/DI trend (14,25) [L/S]</td>
+<td>n</td>
+<td>n</td>
+<td>Y</td>
+<td>+/-/-</td>
+</tr>
+<tr>
+<td>ADX/DI trend (14,25) [long-only]</td>
+<td>n</td>
+<td>n</td>
+<td>Y</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>Bollinger breakout (20,2)</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>Bollinger mean-rev (20,2)</td>
+<td>n</td>
+<td>n</td>
+<td>Y</td>
+<td>+/-/-</td>
+</tr>
+<tr>
+<td>Buy-the-dip (-1.5 sigma)</td>
+<td>n</td>
+<td>n</td>
+<td>Y</td>
+<td>+/-/+</td>
+</tr>
+<tr>
+<td>Connors RSI(2) 10/70</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>Donchian 20/10 (turtle)</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>Donchian 55/20</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>EMA cross 12/26 [L/S]</td>
+<td>Y</td>
+<td>n</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>EMA cross 12/26 [long-only]</td>
+<td>Y</td>
+<td>Y</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>IBS mean-reversion</td>
+<td>n</td>
+<td>n</td>
+<td>Y</td>
+<td>+/+/+</td>
+</tr>
+<tr>
+<td>Keltner breakout (20,2)</td>
+<td>n</td>
+<td>Y</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>Long build-up (price&amp;OI up over k) [expiry-adj OI]</td>
+<td>Y</td>
+<td>Y</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>Long build-up (price&amp;OI up over k) [naive OI]</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>MACD 12/26/9 [L/S]</td>
+<td>Y</td>
+<td>Y</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>MACD 12/26/9 [long-only]</td>
+<td>Y</td>
+<td>Y</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>Price &gt; 200DMA [L/S]</td>
+<td>Y</td>
+<td>n</td>
+<td>n</td>
+<td>+/-/-</td>
+</tr>
+<tr>
+<td>Price &gt; 200DMA [long-only]</td>
+<td>Y</td>
+<td>n</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>RSI(14) 30/50 mean-rev</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>+/-/-</td>
+</tr>
+<tr>
+<td>SMA cross 20/50 [L/S]</td>
+<td>Y</td>
+<td>n</td>
+<td>Y</td>
+<td>+/-/+</td>
+</tr>
+<tr>
+<td>SMA cross 20/50 [long-only]</td>
+<td>Y</td>
+<td>n</td>
+<td>Y</td>
+<td>+/-/-</td>
+</tr>
+<tr>
+<td>SMA cross 50/200 [L/S]</td>
+<td>n</td>
+<td>n</td>
+<td>Y</td>
+<td>+/-/+</td>
+</tr>
+<tr>
+<td>SMA cross 50/200 [long-only]</td>
+<td>Y</td>
+<td>n</td>
+<td>Y</td>
+<td>+/+/+</td>
+</tr>
+<tr>
+<td>Stochastic mean-rev (14,20/80)</td>
+<td>n</td>
+<td>n</td>
+<td>Y</td>
+<td>+/-/+</td>
+</tr>
+<tr>
+<td>Supertrend daily (10,3) [L/S]</td>
+<td>n</td>
+<td>Y</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>Supertrend daily (10,3) [long-only]</td>
+<td>Y</td>
+<td>Y</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>Time-series momentum 252d [L/S]</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>Time-series momentum 252d [long-only]</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>Trend(50) only [no OI]</td>
+<td>Y</td>
+<td>n</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg1 [expiry-adj OI]</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg1 [naive OI]</td>
+<td>n</td>
+<td>n</td>
+<td>Y</td>
+<td>+/-/-</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg5 [expiry-adj OI]</td>
+<td>Y</td>
+<td>Y</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg5 [naive OI]</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>Trend(N)+OI sma20 [expiry-adj OI]</td>
+<td>Y</td>
+<td>n</td>
+<td>n</td>
+<td>+/+/-</td>
+</tr>
+<tr>
+<td>Trend(N)+OI sma20 [naive OI]</td>
+<td>n</td>
+<td>n</td>
+<td>Y</td>
+<td>+/+/-</td>
+</tr>
+</tbody>
+</table>
+<p>Note that "beats buy-and-hold" in test is easy: buy-and-hold lost money. No row is Y/Y/Y. The only two rows with positive CAGR in all three periods are IBS mean-reversion (1 to 3% a year, losing to buy-and-hold in train and valid) and SMA 50/200 long-only (11.2% in train but only 0.3% in valid and 0.6% in test).</p>
+<h2>5. Costs</h2>
+<p>Per side (fraction of notional): brokerage 0.0012% + exchange 0.0019% + SEBI 0.0001% + GST 18% on those + slippage 0.0100%; stamp 0.0020% on buys; STT on sells 0.010% (to Mar 2023), 0.0125% (Apr 2023-Sep 2024), 0.020% (from Oct 2024). Round trip today (STT 0.02%): 0.050% of notional (about 11.9 index points at 24,000). Rolling a held position costs one extra round trip + 0.01% spread = 0.060%.</p>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Gross (no costs) full</th>
+<th>Net, slippage 0.01%/side full</th>
+<th>Net, slippage 0.03%/side full</th>
+<th>Round-trips (full)</th>
+<th>Cost drag %/yr</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Buy &amp; Hold futures</td>
+<td>5.0% / 0.37</td>
+<td>4.4% / 0.34</td>
+<td>3.9% / 0.31</td>
+<td>0</td>
+<td>0.67</td>
+</tr>
+<tr>
+<td>Trend(50)+rising OI (5d), expiry-adjusted OI</td>
+<td>5.0% / 0.61</td>
+<td>4.0% / 0.50</td>
+<td>3.2% / 0.41</td>
+<td>140</td>
+<td>0.96</td>
+</tr>
+<tr>
+<td>Trend(50)+rising OI (5d), naive OI</td>
+<td>2.9% / 0.42</td>
+<td>1.9% / 0.29</td>
+<td>0.9% / 0.17</td>
+<td>153</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td>Trend(50) only (no OI)</td>
+<td>5.8% / 0.62</td>
+<td>5.1% / 0.55</td>
+<td>4.5% / 0.49</td>
+<td>74</td>
+<td>0.73</td>
+</tr>
+<tr>
+<td>LOCKED: MACD 12/26/9 [long-only] {'a': 16, 'b': 40, 's': 9}</td>
+<td>6.9% / 0.70</td>
+<td>6.2% / 0.64</td>
+<td>5.7% / 0.59</td>
+<td>62</td>
+<td>0.64</td>
+</tr>
+<tr>
+<td>LOCKED: Supertrend daily (10,3) [long-only] {'w': 7, 'm': 2.0}</td>
+<td>6.8% / 0.72</td>
+<td>6.2% / 0.66</td>
+<td>5.7% / 0.61</td>
+<td>56</td>
+<td>0.64</td>
+</tr>
+<tr>
+<td>LOCKED: Trend(N)+OI chg5 [expiry-adj OI] {'N': 50}</td>
+<td>5.0% / 0.61</td>
+<td>4.0% / 0.50</td>
+<td>3.2% / 0.41</td>
+<td>140</td>
+<td>0.96</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Trend(50)+rising OI makes about 140 round trips over the full period, so costs reduce its CAGR by roughly 1 percentage point a year. Buy-and-hold loses about 0.7 points a year, from rolls.</li>
+<li>Doubling the slippage assumption to 0.03% per side takes the headline strategy's full-period CAGR from 4.0% to 3.2%. Costs are not what decides the result; the test-period loss is.</li>
+</ul>
+<h2>6. Trend(50) + rising OI: the exact test the checklist asked for</h2>
+<p>Strategy as tested: long when close is above its 50-day average <strong>and</strong> total Nifty futures OI is higher than 5 trading days ago. Flat otherwise. (I could not reproduce the earlier 9.4% figure; its exact definition and data were not shared. The closest comparable full-period net figure here is 4.0% CAGR.)</p>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Train CAGR/Sharpe/MaxDD</th>
+<th>Valid</th>
+<th>Test</th>
+<th>Full</th>
+<th>Exposure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Buy &amp; Hold futures</td>
+<td>11.0 / 0.62 / -40.7</td>
+<td>6.0 / 0.48 / -17.8</td>
+<td>-4.8 / -0.28 / -25.9</td>
+<td>4.4 / 0.34 / -40.7</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Trend(50)+rising OI (5d), expiry-adjusted OI</td>
+<td>11.3 / 1.11 / -11.7</td>
+<td>10.1 / 1.47 / -4.4</td>
+<td>-8.5 / -1.15 / -23.9</td>
+<td>4.0 / 0.50 / -23.9</td>
+<td>43%</td>
+</tr>
+<tr>
+<td>Trend(50)+rising OI (5d), naive OI</td>
+<td>4.2 / 0.51 / -9.9</td>
+<td>5.5 / 0.93 / -3.6</td>
+<td>-3.5 / -0.57 / -12.0</td>
+<td>1.9 / 0.29 / -12.0</td>
+<td>31%</td>
+</tr>
+<tr>
+<td>Trend(50) only (no OI)</td>
+<td>15.1 / 1.31 / -12.6</td>
+<td>1.6 / 0.22 / -16.8</td>
+<td>-4.6 / -0.50 / -15.7</td>
+<td>5.1 / 0.55 / -17.7</td>
+<td>58%</td>
+</tr>
+<tr>
+<td>LOCKED: MACD 12/26/9 [long-only] {'a': 16, 'b': 40, 's': 9}</td>
+<td>15.9 / 1.30 / -10.3</td>
+<td>12.6 / 1.37 / -9.8</td>
+<td>-9.1 / -1.05 / -25.2</td>
+<td>6.2 / 0.64 / -25.5</td>
+<td>50%</td>
+</tr>
+<tr>
+<td>LOCKED: Supertrend daily (10,3) [long-only] {'w': 7, 'm': 2.0}</td>
+<td>12.4 / 1.13 / -13.2</td>
+<td>13.8 / 1.43 / -11.1</td>
+<td>-6.1 / -0.71 / -19.1</td>
+<td>6.2 / 0.66 / -19.1</td>
+<td>55%</td>
+</tr>
+<tr>
+<td>LOCKED: Trend(N)+OI chg5 [expiry-adj OI] {'N': 50}</td>
+<td>11.3 / 1.11 / -11.7</td>
+<td>10.1 / 1.47 / -4.4</td>
+<td>-8.5 / -1.15 / -23.9</td>
+<td>4.0 / 0.50 / -23.9</td>
+<td>43%</td>
+</tr>
+</tbody>
+</table>
+<h3>6.1 Parameter sweep (N = 30, 40, 50, 60, 80), three OI definitions, expiry-adjusted vs naive OI</h3>
+<table>
+<thead>
+<tr>
+<th>Variant</th>
+<th>N</th>
+<th>Train CAGR/Sh/DD</th>
+<th>Valid</th>
+<th>Test</th>
+<th>Beats B&amp;H (T/V/Te)?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Trend(N)+OI chg5 [expiry-adj OI]</td>
+<td>30</td>
+<td>5.6 / 0.59 / -16.3</td>
+<td>12.4 / 1.72 / -5.9</td>
+<td>-10.3 / -1.35 / -28.8</td>
+<td>n/Y/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg5 [expiry-adj OI]</td>
+<td>40</td>
+<td>7.7 / 0.78 / -12.9</td>
+<td>10.8 / 1.55 / -4.5</td>
+<td>-9.5 / -1.22 / -26.6</td>
+<td>n/Y/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg5 [expiry-adj OI]</td>
+<td>50</td>
+<td>11.3 / 1.11 / -11.7</td>
+<td>10.1 / 1.47 / -4.4</td>
+<td>-8.5 / -1.15 / -23.9</td>
+<td>Y/Y/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg5 [expiry-adj OI]</td>
+<td>60</td>
+<td>10.4 / 1.03 / -8.7</td>
+<td>8.1 / 1.18 / -4.5</td>
+<td>-7.0 / -0.92 / -19.3</td>
+<td>n/Y/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg5 [expiry-adj OI]</td>
+<td>80</td>
+<td>8.0 / 0.82 / -10.1</td>
+<td>11.0 / 1.55 / -5.1</td>
+<td>-7.2 / -0.94 / -19.8</td>
+<td>n/Y/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg5 [naive OI]</td>
+<td>30</td>
+<td>0.4 / 0.09 / -13.0</td>
+<td>6.8 / 1.11 / -5.3</td>
+<td>-5.1 / -0.89 / -15.6</td>
+<td>n/Y/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg5 [naive OI]</td>
+<td>40</td>
+<td>2.4 / 0.32 / -12.6</td>
+<td>5.9 / 0.99 / -4.6</td>
+<td>-4.4 / -0.73 / -14.6</td>
+<td>n/n/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg5 [naive OI]</td>
+<td>50</td>
+<td>4.2 / 0.51 / -9.9</td>
+<td>5.5 / 0.93 / -3.6</td>
+<td>-3.5 / -0.57 / -12.0</td>
+<td>n/n/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg5 [naive OI]</td>
+<td>60</td>
+<td>2.7 / 0.35 / -9.7</td>
+<td>3.8 / 0.64 / -4.0</td>
+<td>-2.5 / -0.39 / -11.1</td>
+<td>n/n/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg5 [naive OI]</td>
+<td>80</td>
+<td>-1.6 / -0.14 / -17.1</td>
+<td>6.3 / 1.03 / -4.7</td>
+<td>-3.2 / -0.49 / -11.5</td>
+<td>n/Y/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg1 [expiry-adj OI]</td>
+<td>30</td>
+<td>0.5 / 0.10 / -23.6</td>
+<td>4.0 / 0.55 / -13.5</td>
+<td>-7.2 / -1.05 / -20.0</td>
+<td>n/n/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg1 [expiry-adj OI]</td>
+<td>40</td>
+<td>2.2 / 0.28 / -20.8</td>
+<td>2.1 / 0.31 / -11.5</td>
+<td>-4.9 / -0.69 / -14.4</td>
+<td>n/n/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg1 [expiry-adj OI]</td>
+<td>50</td>
+<td>9.7 / 1.01 / -10.8</td>
+<td>0.4 / 0.10 / -10.7</td>
+<td>-2.9 / -0.42 / -12.3</td>
+<td>n/n/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg1 [expiry-adj OI]</td>
+<td>60</td>
+<td>8.2 / 0.88 / -11.4</td>
+<td>1.7 / 0.28 / -8.4</td>
+<td>-1.4 / -0.18 / -8.2</td>
+<td>n/n/Y</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg1 [expiry-adj OI]</td>
+<td>80</td>
+<td>5.5 / 0.61 / -11.9</td>
+<td>3.6 / 0.53 / -7.8</td>
+<td>-1.8 / -0.24 / -9.6</td>
+<td>n/n/Y</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg1 [naive OI]</td>
+<td>30</td>
+<td>-0.0 / 0.05 / -24.4</td>
+<td>0.7 / 0.13 / -13.5</td>
+<td>-5.5 / -0.83 / -17.9</td>
+<td>n/n/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg1 [naive OI]</td>
+<td>40</td>
+<td>2.1 / 0.27 / -19.5</td>
+<td>-0.3 / 0.00 / -12.0</td>
+<td>-3.6 / -0.51 / -11.7</td>
+<td>n/n/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg1 [naive OI]</td>
+<td>50</td>
+<td>8.1 / 0.90 / -11.0</td>
+<td>-1.9 / -0.23 / -11.2</td>
+<td>-0.8 / -0.10 / -10.9</td>
+<td>n/n/Y</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg1 [naive OI]</td>
+<td>60</td>
+<td>6.7 / 0.76 / -11.2</td>
+<td>-0.6 / -0.06 / -9.3</td>
+<td>0.6 / 0.12 / -7.2</td>
+<td>n/n/Y</td>
+</tr>
+<tr>
+<td>Trend(N)+OI chg1 [naive OI]</td>
+<td>80</td>
+<td>4.5 / 0.52 / -11.6</td>
+<td>0.9 / 0.16 / -9.3</td>
+<td>-0.2 / -0.00 / -8.7</td>
+<td>n/n/Y</td>
+</tr>
+<tr>
+<td>Trend(N)+OI sma20 [expiry-adj OI]</td>
+<td>30</td>
+<td>5.9 / 0.56 / -23.6</td>
+<td>12.6 / 1.45 / -7.4</td>
+<td>-5.1 / -0.60 / -16.5</td>
+<td>n/Y/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI sma20 [expiry-adj OI]</td>
+<td>40</td>
+<td>8.6 / 0.78 / -19.5</td>
+<td>8.5 / 0.99 / -9.7</td>
+<td>-4.1 / -0.47 / -14.6</td>
+<td>n/Y/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI sma20 [expiry-adj OI]</td>
+<td>50</td>
+<td>13.5 / 1.22 / -13.3</td>
+<td>5.8 / 0.72 / -10.9</td>
+<td>-3.3 / -0.36 / -11.6</td>
+<td>Y/n/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI sma20 [expiry-adj OI]</td>
+<td>60</td>
+<td>10.6 / 0.97 / -12.1</td>
+<td>7.6 / 0.95 / -8.8</td>
+<td>-1.9 / -0.20 / -10.2</td>
+<td>n/Y/Y</td>
+</tr>
+<tr>
+<td>Trend(N)+OI sma20 [expiry-adj OI]</td>
+<td>80</td>
+<td>8.2 / 0.77 / -17.7</td>
+<td>9.7 / 1.19 / -7.4</td>
+<td>-2.9 / -0.31 / -10.6</td>
+<td>n/Y/n</td>
+</tr>
+<tr>
+<td>Trend(N)+OI sma20 [naive OI]</td>
+<td>30</td>
+<td>0.4 / 0.10 / -13.2</td>
+<td>5.8 / 0.90 / -4.7</td>
+<td>-1.0 / -0.18 / -8.1</td>
+<td>n/n/Y</td>
+</tr>
+<tr>
+<td>Trend(N)+OI sma20 [naive OI]</td>
+<td>40</td>
+<td>2.9 / 0.38 / -11.7</td>
+<td>3.9 / 0.61 / -6.9</td>
+<td>-0.9 / -0.16 / -7.3</td>
+<td>n/n/Y</td>
+</tr>
+<tr>
+<td>Trend(N)+OI sma20 [naive OI]</td>
+<td>50</td>
+<td>4.3 / 0.55 / -9.0</td>
+<td>1.3 / 0.23 / -7.8</td>
+<td>-0.3 / -0.02 / -6.0</td>
+<td>n/n/Y</td>
+</tr>
+<tr>
+<td>Trend(N)+OI sma20 [naive OI]</td>
+<td>60</td>
+<td>0.9 / 0.14 / -9.8</td>
+<td>0.6 / 0.13 / -8.7</td>
+<td>-0.3 / -0.03 / -5.7</td>
+<td>n/n/Y</td>
+</tr>
+<tr>
+<td>Trend(N)+OI sma20 [naive OI]</td>
+<td>80</td>
+<td>-3.1 / -0.34 / -20.6</td>
+<td>1.7 / 0.29 / -9.7</td>
+<td>0.1 / 0.04 / -5.7</td>
+<td>n/n/Y</td>
+</tr>
+<tr>
+<td>Trend(50) only [no OI]</td>
+<td>30</td>
+<td>8.5 / 0.75 / -18.0</td>
+<td>7.3 / 0.81 / -16.2</td>
+<td>-8.2 / -0.93 / -22.9</td>
+<td>n/Y/n</td>
+</tr>
+<tr>
+<td>Trend(50) only [no OI]</td>
+<td>40</td>
+<td>10.4 / 0.90 / -16.5</td>
+<td>4.5 / 0.51 / -15.0</td>
+<td>-7.4 / -0.84 / -20.4</td>
+<td>n/n/n</td>
+</tr>
+<tr>
+<td>Trend(50) only [no OI]</td>
+<td>50</td>
+<td>15.1 / 1.31 / -12.6</td>
+<td>1.6 / 0.22 / -16.8</td>
+<td>-4.6 / -0.50 / -15.7</td>
+<td>Y/n/n</td>
+</tr>
+<tr>
+<td>Trend(50) only [no OI]</td>
+<td>60</td>
+<td>13.5 / 1.14 / -12.1</td>
+<td>2.4 / 0.31 / -14.9</td>
+<td>-2.8 / -0.29 / -10.7</td>
+<td>Y/n/n</td>
+</tr>
+<tr>
+<td>Trend(50) only [no OI]</td>
+<td>80</td>
+<td>9.4 / 0.82 / -15.3</td>
+<td>5.9 / 0.69 / -7.7</td>
+<td>-3.6 / -0.40 / -11.8</td>
+<td>n/n/n</td>
+</tr>
+</tbody>
+</table>
+<p>Reading it:</p>
+<ul>
+<li>With the 5-day OI definition and adjusted OI, every N is strong in valid (8 to 12% CAGR, drawdown about -4 to -6%) but every N loses in test (-7% to -10%).</li>
+<li>In train, only N=50 beats buy-and-hold on all three metrics. N=60 comes close on Sharpe and drawdown but gives up 0.6 points of CAGR.</li>
+<li>Adding OI to a plain trend filter helped in valid and did not help in test: Trend(50) only lost 4.6%, and the OI version lost 8.5%.</li>
+</ul>
+<h3>6.2 Expiry effect on OI</h3>
+<table>
+<thead>
+<tr>
+<th>OI signal</th>
+<th>Share 'OI rising' on first day after expiry</th>
+<th>Share on all other days</th>
+<th>Share 'rising' in 5 days after expiry (5d change)</th>
+<th>Share on other days</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Naive total OI</td>
+<td>1%</td>
+<td>64%</td>
+<td>11%</td>
+<td>71%</td>
+</tr>
+<tr>
+<td>Expiry-adjusted OI</td>
+<td>77%</td>
+<td>64%</td>
+<td>91%</td>
+<td>71%</td>
+</tr>
+</tbody>
+</table>
+<p>116 monthly expiries; naive total OI falls by 23% on average on the day after expiry. Headline strategy: days where naive and adjusted signals differ: 277 of 2367.</p>
+<ul>
+<li><strong>Problem:</strong> each month the expiring contract's OI disappears from the file. Total OI therefore drops sharply right after expiry, and a naive "OI rising" test is false almost every time. The signal flips because of the calendar, not because of positioning.</li>
+<li><strong>Fix used:</strong> an expiry-adjusted OI series that adds up only the day-to-day OI change of contracts present on both days. The expiring contract's removal then no longer counts as a drop.</li>
+<li><strong>Residual bias:</strong> the adjusted series slightly overstates "rising" right after expiry (91% of days vs 71%), because the newly listed far contract starts near zero and its build-up counts as new OI. A cleaner treatment (for example excluding the first 3 to 5 days after expiry) is a possible next step.</li>
+<li><strong>Consequence:</strong> the headline result depends on this choice (train 11.3% adjusted vs 4.2% naive), so I show both in every table.</li>
+</ul>
+<h3>6.3 Look-ahead check</h3>
+<p>Poison test: for 12 random cut dates, every price/VIX/OI value after the cut was replaced by random numbers; 432 (strategy x cut) signals were recomputed and compared up to the cut: 0 mismatches. Position at day h equals signal at close h-1 (fills at the next open): True.</p>
+<ul>
+<li><strong>How the test works:</strong> it replaces all price, VIX and OI values after a chosen date with random numbers, recomputes every strategy's signals, and confirms the signals up to that date do not change. A signal that peeked at future data would change.</li>
+<li><strong>OI timing:</strong> OI for day t enters the signal at the close of t, and the order is placed at the open of t+1, so the after-close publication of OI is respected.</li>
+</ul>
+<h2>7. Overfitting accounting</h2>
+<p>Configurations evaluated in this report: 323 (each family's default plus its parameter grid, long-only and long/short). Earlier exploratory runs on the same data (price-only signals, ~2031 configurations) also saw the test period, so N for deflation = 2354. Expected best Sharpe from pure luck over N=2354 trials on the train+valid sample: 1.33 (annualised).</p>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Train+valid Sharpe (ann.)</th>
+<th>Deflated Sharpe prob. (true Sharpe &gt; 0 after N trials)</th>
+<th>Test Sharpe (ann.)</th>
+<th>Test CAGR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Trend(50)+rising OI (5d), expiry-adjusted OI</td>
+<td>1.19</td>
+<td>0.37</td>
+<td>-1.15</td>
+<td>-8.5%</td>
+</tr>
+<tr>
+<td>Trend(50)+rising OI (5d), naive OI</td>
+<td>0.62</td>
+<td>0.05</td>
+<td>-0.57</td>
+<td>-3.5%</td>
+</tr>
+<tr>
+<td>Trend(50) only (no OI)</td>
+<td>0.98</td>
+<td>0.21</td>
+<td>-0.50</td>
+<td>-4.6%</td>
+</tr>
+<tr>
+<td>LOCKED: MACD 12/26/9 [long-only] {'a': 16, 'b': 40, 's': 9}</td>
+<td>1.31</td>
+<td>0.48</td>
+<td>-1.05</td>
+<td>-9.1%</td>
+</tr>
+<tr>
+<td>LOCKED: Supertrend daily (10,3) [long-only] {'w': 7, 'm': 2.0}</td>
+<td>1.22</td>
+<td>0.40</td>
+<td>-0.71</td>
+<td>-6.1%</td>
+</tr>
+<tr>
+<td>LOCKED: Trend(N)+OI chg5 [expiry-adj OI] {'N': 50}</td>
+<td>1.19</td>
+<td>0.37</td>
+<td>-1.15</td>
+<td>-8.5%</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Reading the deflated Sharpe:</strong> it is the probability that the true Sharpe is above zero once the number of trials is taken into account. Values near 0.95 or higher would be strong evidence. All the strategies here are far below that (0.05 to 0.48), and then lost money in the untouched test.</li>
+<li><strong>Frozen picks (chosen on train+valid before test was shown):</strong> (1) MACD 12/26/9 long-only with a=16, b=40, s=9, (2) Supertrend daily long-only with w=7, m=2.0, (3) Trend(50)+rising OI with expiry-adjusted OI. Test results are in section 6 and none beat buy-and-hold.</li>
+<li><strong>Not pristine:</strong> earlier exploratory runs on the same data looked at the test period, so test is no longer fully independent for price-based ideas. I counted those trials in N.</li>
+</ul>
+<h2>8. Regime-wise results (annualised return, Sharpe in brackets; <code>*</code> = fewer than 30 days)</h2>
+<table>
+<thead>
+<tr>
+<th>Regime</th>
+<th>Period</th>
+<th>Days</th>
+<th>Buy &amp; Hold</th>
+<th>Trend(50)+rising OI (adj.)</th>
+<th>Trend(50) only</th>
+<th>MACD 12/26/9 LO</th>
+<th>Supertrend daily (10,3) LO</th>
+<th>Trend(N)+OI chg5 [expiry-adj OI]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Trend (price vs 200DMA): Bear</td>
+<td>train</td>
+<td>266</td>
+<td>9.5% (Sh 0.3)</td>
+<td>10.9% (Sh 1.0)</td>
+<td>19.6% (Sh 1.7)</td>
+<td>27.0% (Sh 1.5)</td>
+<td>14.5% (Sh 1.2)</td>
+<td>10.9% (Sh 1.0)</td>
+</tr>
+<tr>
+<td>Trend (price vs 200DMA): Bear</td>
+<td>valid</td>
+<td>163</td>
+<td>24.1% (Sh 1.4)</td>
+<td>0.1% (Sh 0.0)</td>
+<td>7.9% (Sh 1.3)</td>
+<td>21.5% (Sh 2.4)</td>
+<td>23.9% (Sh 2.7)</td>
+<td>0.1% (Sh 0.0)</td>
+</tr>
+<tr>
+<td>Trend (price vs 200DMA): Bear</td>
+<td>test</td>
+<td>340</td>
+<td>-0.8% (Sh -0.0)</td>
+<td>-0.7% (Sh -0.2)</td>
+<td>2.0% (Sh 0.3)</td>
+<td>-4.2% (Sh -0.5)</td>
+<td>4.1% (Sh 0.5)</td>
+<td>-0.7% (Sh -0.2)</td>
+</tr>
+<tr>
+<td>Trend (price vs 200DMA): Bull</td>
+<td>train</td>
+<td>661</td>
+<td>13.7% (Sh 1.0)</td>
+<td>11.3% (Sh 1.1)</td>
+<td>12.8% (Sh 1.1)</td>
+<td>10.8% (Sh 1.3)</td>
+<td>11.5% (Sh 1.1)</td>
+<td>11.3% (Sh 1.1)</td>
+</tr>
+<tr>
+<td>Trend (price vs 200DMA): Bull</td>
+<td>valid</td>
+<td>329</td>
+<td>-1.6% (Sh -0.1)</td>
+<td>14.7% (Sh 1.9)</td>
+<td>-0.9% (Sh -0.1)</td>
+<td>7.7% (Sh 0.9)</td>
+<td>8.1% (Sh 0.9)</td>
+<td>14.7% (Sh 1.9)</td>
+</tr>
+<tr>
+<td>Trend (price vs 200DMA): Bull</td>
+<td>test</td>
+<td>363</td>
+<td>-7.0% (Sh -0.6)</td>
+<td>-16.1% (Sh -1.7)</td>
+<td>-10.2% (Sh -1.0)</td>
+<td>-13.8% (Sh -1.7)</td>
+<td>-15.4% (Sh -1.7)</td>
+<td>-16.1% (Sh -1.7)</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): High &gt;22</td>
+<td>train</td>
+<td>205</td>
+<td>31.4% (Sh 0.9)</td>
+<td>26.5% (Sh 2.0)</td>
+<td>34.0% (Sh 2.3)</td>
+<td>29.0% (Sh 1.6)</td>
+<td>29.4% (Sh 1.9)</td>
+<td>26.5% (Sh 2.0)</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): High &gt;22</td>
+<td>valid</td>
+<td>48</td>
+<td>16.1% (Sh 0.6)</td>
+<td>-6.0% (Sh -2.3)</td>
+<td>-7.4% (Sh -1.3)</td>
+<td>19.7% (Sh 2.2)</td>
+<td>27.1% (Sh 2.8)</td>
+<td>-6.0% (Sh -2.3)</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): High &gt;22</td>
+<td>test</td>
+<td>20</td>
+<td>98%*</td>
+<td>-56%*</td>
+<td>-56%*</td>
+<td>-10%*</td>
+<td>-29%*</td>
+<td>-56%*</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): Low &lt;15</td>
+<td>train</td>
+<td>278</td>
+<td>2.0% (Sh 0.2)</td>
+<td>11.6% (Sh 1.4)</td>
+<td>9.4% (Sh 1.0)</td>
+<td>10.4% (Sh 1.4)</td>
+<td>7.3% (Sh 0.9)</td>
+<td>11.6% (Sh 1.4)</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): Low &lt;15</td>
+<td>valid</td>
+<td>249</td>
+<td>7.2% (Sh 0.7)</td>
+<td>9.4% (Sh 1.5)</td>
+<td>10.2% (Sh 1.4)</td>
+<td>12.7% (Sh 1.8)</td>
+<td>17.7% (Sh 2.6)</td>
+<td>9.4% (Sh 1.5)</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): Low &lt;15</td>
+<td>test</td>
+<td>491</td>
+<td>-20.0% (Sh -1.6)</td>
+<td>-7.2% (Sh -1.1)</td>
+<td>-7.2% (Sh -1.0)</td>
+<td>-12.2% (Sh -1.6)</td>
+<td>-8.5% (Sh -1.1)</td>
+<td>-7.2% (Sh -1.1)</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): Mid 15-22</td>
+<td>train</td>
+<td>444</td>
+<td>10.3% (Sh 0.6)</td>
+<td>3.9% (Sh 0.4)</td>
+<td>9.2% (Sh 0.9)</td>
+<td>12.4% (Sh 1.1)</td>
+<td>7.6% (Sh 0.8)</td>
+<td>3.9% (Sh 0.4)</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): Mid 15-22</td>
+<td>valid</td>
+<td>195</td>
+<td>4.2% (Sh 0.3)</td>
+<td>14.3% (Sh 1.8)</td>
+<td>-6.2% (Sh -0.5)</td>
+<td>10.0% (Sh 0.9)</td>
+<td>4.3% (Sh 0.4)</td>
+<td>14.3% (Sh 1.8)</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): Mid 15-22</td>
+<td>test</td>
+<td>192</td>
+<td>26.4% (Sh 1.7)</td>
+<td>-7.5% (Sh -0.8)</td>
+<td>8.5% (Sh 0.8)</td>
+<td>-1.4% (Sh -0.1)</td>
+<td>2.8% (Sh 0.3)</td>
+<td>-7.5% (Sh -0.8)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Down &lt;-3%</td>
+<td>train</td>
+<td>142</td>
+<td>-22.3% (Sh -0.6)</td>
+<td>-1.0% (Sh -1.4)</td>
+<td>-1.0% (Sh -1.5)</td>
+<td>21.5% (Sh 1.7)</td>
+<td>-3.5% (Sh -1.0)</td>
+<td>-1.0% (Sh -1.4)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Down &lt;-3%</td>
+<td>valid</td>
+<td>102</td>
+<td>16.2% (Sh 0.9)</td>
+<td>-0.1% (Sh -1.6)</td>
+<td>-4.7% (Sh -1.6)</td>
+<td>5.6% (Sh 1.4)</td>
+<td>1.3% (Sh 0.2)</td>
+<td>-0.1% (Sh -1.6)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Down &lt;-3%</td>
+<td>test</td>
+<td>137</td>
+<td>-8.5% (Sh -0.5)</td>
+<td>0.0% (Sh 0.0)</td>
+<td>0.0% (Sh 0.0)</td>
+<td>2.2% (Sh 1.0)</td>
+<td>1.1% (Sh 0.4)</td>
+<td>0.0% (Sh 0.0)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Flat</td>
+<td>train</td>
+<td>449</td>
+<td>15.8% (Sh 1.1)</td>
+<td>14.4% (Sh 1.4)</td>
+<td>15.6% (Sh 1.4)</td>
+<td>10.8% (Sh 1.1)</td>
+<td>12.9% (Sh 1.3)</td>
+<td>14.4% (Sh 1.4)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Flat</td>
+<td>valid</td>
+<td>249</td>
+<td>-5.8% (Sh -0.5)</td>
+<td>-0.8% (Sh -0.1)</td>
+<td>-8.0% (Sh -1.0)</td>
+<td>8.1% (Sh 1.1)</td>
+<td>9.3% (Sh 1.1)</td>
+<td>-0.8% (Sh -0.1)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Flat</td>
+<td>test</td>
+<td>467</td>
+<td>4.4% (Sh 0.4)</td>
+<td>-3.8% (Sh -0.5)</td>
+<td>-0.8% (Sh -0.1)</td>
+<td>-6.2% (Sh -0.8)</td>
+<td>-2.6% (Sh -0.3)</td>
+<td>-3.8% (Sh -0.5)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Up &gt;3%</td>
+<td>train</td>
+<td>336</td>
+<td>22.7% (Sh 1.5)</td>
+<td>12.1% (Sh 1.0)</td>
+<td>20.2% (Sh 1.5)</td>
+<td>19.2% (Sh 1.4)</td>
+<td>18.2% (Sh 1.3)</td>
+<td>12.1% (Sh 1.0)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Up &gt;3%</td>
+<td>valid</td>
+<td>141</td>
+<td>22.6% (Sh 1.6)</td>
+<td>35.8% (Sh 3.8)</td>
+<td>24.6% (Sh 1.9)</td>
+<td>24.4% (Sh 1.8)</td>
+<td>29.1% (Sh 2.3)</td>
+<td>35.8% (Sh 3.8)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Up &gt;3%</td>
+<td>test</td>
+<td>99</td>
+<td>-37.1% (Sh -2.3)</td>
+<td>-43.3% (Sh -3.7)</td>
+<td>-26.8% (Sh -2.0)</td>
+<td>-39.2% (Sh -2.5)</td>
+<td>-32.0% (Sh -2.3)</td>
+<td>-43.3% (Sh -3.7)</td>
+</tr>
+<tr>
+<td>Drawdown from high: DD &gt;10%</td>
+<td>train</td>
+<td>224</td>
+<td>20.5% (Sh 0.6)</td>
+<td>12.6% (Sh 1.1)</td>
+<td>26.3% (Sh 2.2)</td>
+<td>32.8% (Sh 1.7)</td>
+<td>24.1% (Sh 1.8)</td>
+<td>12.6% (Sh 1.1)</td>
+</tr>
+<tr>
+<td>Drawdown from high: DD &gt;10%</td>
+<td>valid</td>
+<td>104</td>
+<td>35.4% (Sh 1.9)</td>
+<td>-1.7% (Sh -1.8)</td>
+<td>8.5% (Sh 1.6)</td>
+<td>19.8% (Sh 2.0)</td>
+<td>18.3% (Sh 1.8)</td>
+<td>-1.7% (Sh -1.8)</td>
+</tr>
+<tr>
+<td>Drawdown from high: DD &gt;10%</td>
+<td>test</td>
+<td>384</td>
+<td>0.1% (Sh 0.0)</td>
+<td>0.3% (Sh 0.1)</td>
+<td>2.3% (Sh 0.4)</td>
+<td>-4.4% (Sh -0.5)</td>
+<td>4.7% (Sh 0.6)</td>
+<td>0.3% (Sh 0.1)</td>
+</tr>
+<tr>
+<td>Drawdown from high: Near high</td>
+<td>train</td>
+<td>703</td>
+<td>9.9% (Sh 0.7)</td>
+<td>10.8% (Sh 1.1)</td>
+<td>11.0% (Sh 1.0)</td>
+<td>9.9% (Sh 1.2)</td>
+<td>8.6% (Sh 0.9)</td>
+<td>10.8% (Sh 1.1)</td>
+</tr>
+<tr>
+<td>Drawdown from high: Near high</td>
+<td>valid</td>
+<td>388</td>
+<td>-0.7% (Sh -0.1)</td>
+<td>12.9% (Sh 1.7)</td>
+<td>0.3% (Sh 0.0)</td>
+<td>10.3% (Sh 1.2)</td>
+<td>12.0% (Sh 1.3)</td>
+<td>12.9% (Sh 1.7)</td>
+</tr>
+<tr>
+<td>Drawdown from high: Near high</td>
+<td>test</td>
+<td>319</td>
+<td>-8.8% (Sh -0.7)</td>
+<td>-19.4% (Sh -1.9)</td>
+<td>-12.2% (Sh -1.1)</td>
+<td>-15.0% (Sh -1.7)</td>
+<td>-18.8% (Sh -2.0)</td>
+<td>-19.4% (Sh -1.9)</td>
+</tr>
+</tbody>
+</table>
+<p>What the regimes show:</p>
+<ul>
+<li><strong>Trend-following earned its money in bull, low-vol and "up" regimes in train and valid</strong> (for example Trend(50)+OI: 11.3% in train bull, 14.7% in valid bull) <strong>and gave it back in test.</strong> In the test-period bull regime it lost 16%/yr, against buy-and-hold's -7%.</li>
+<li><strong>It does not protect in high-VIX regimes.</strong> In valid high-VIX (48 days) it lost 6%/yr while buy-and-hold gained 16%. The test high-VIX sample has only 20 days.</li>
+<li><strong>The edge in test is negative in "near high" and "up &gt;3%" conditions.</strong> Entries after a rally were followed by reversals. That is the pattern of a trend signal buying near the top in a choppy market.</li>
+</ul>
+<h2>9. Post-hoc check: panic-reversal (found earlier, re-run under the stricter next-open rule)</h2>
+<p>Two ideas, each long for one day: (a) India VIX up more than 12% in a day, (b) 10-day price drop of more than 2.5% while above the 200DMA. These were found in earlier searches <strong>with knowledge of the test period</strong>, so treat this section as a hypothesis, not a validated result. It is not one of the frozen picks.</p>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>Train CAGR/Sharpe/MaxDD</th>
+<th>Valid</th>
+<th>Test</th>
+<th>Full</th>
+<th>Exposure</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VIX spike &gt;12% (long 1 day)</td>
+<td>1.4 / 0.23 / -11.2</td>
+<td>-0.5 / -0.13 / -4.6</td>
+<td>1.1 / 0.37 / -2.3</td>
+<td>0.8 / 0.19 / -11.2</td>
+<td>2%</td>
+</tr>
+<tr>
+<td>10-day drop &gt;2.5% in uptrend (long 1 day)</td>
+<td>2.5 / 0.46 / -10.1</td>
+<td>2.5 / 1.06 / -1.9</td>
+<td>2.5 / 0.79 / -4.0</td>
+<td>2.5 / 0.59 / -10.1</td>
+<td>5%</td>
+</tr>
+<tr>
+<td>Pair (equal weight)</td>
+<td>2.0 / 0.45 / -9.1</td>
+<td>1.0 / 0.50 / -3.1</td>
+<td>1.8 / 0.66 / -2.0</td>
+<td>1.7 / 0.49 / -9.1</td>
+<td>7%</td>
+</tr>
+<tr>
+<td>Pair at 5x notional</td>
+<td>8.3 / 0.45 / -40.2</td>
+<td>4.7 / 0.50 / -15.0</td>
+<td>8.5 / 0.66 / -9.8</td>
+<td>7.5 / 0.49 / -40.2</td>
+<td>7%</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Regime</th>
+<th>Period</th>
+<th>Days</th>
+<th>Buy &amp; Hold</th>
+<th>Pair (1x)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Trend (price vs 200DMA): Bear</td>
+<td>train</td>
+<td>266</td>
+<td>9.5% (Sh 0.3)</td>
+<td>-1.2% (Sh -0.2)</td>
+</tr>
+<tr>
+<td>Trend (price vs 200DMA): Bear</td>
+<td>valid</td>
+<td>163</td>
+<td>24.1% (Sh 1.4)</td>
+<td>0.6% (Sh 0.2)</td>
+</tr>
+<tr>
+<td>Trend (price vs 200DMA): Bear</td>
+<td>test</td>
+<td>340</td>
+<td>-0.8% (Sh -0.0)</td>
+<td>0.6% (Sh 0.7)</td>
+</tr>
+<tr>
+<td>Trend (price vs 200DMA): Bull</td>
+<td>train</td>
+<td>661</td>
+<td>13.7% (Sh 1.0)</td>
+<td>3.5% (Sh 0.9)</td>
+</tr>
+<tr>
+<td>Trend (price vs 200DMA): Bull</td>
+<td>valid</td>
+<td>329</td>
+<td>-1.6% (Sh -0.1)</td>
+<td>1.3% (Sh 0.8)</td>
+</tr>
+<tr>
+<td>Trend (price vs 200DMA): Bull</td>
+<td>test</td>
+<td>363</td>
+<td>-7.0% (Sh -0.6)</td>
+<td>2.9% (Sh 0.8)</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): High &gt;22</td>
+<td>train</td>
+<td>205</td>
+<td>31.4% (Sh 0.9)</td>
+<td>10.5% (Sh 1.2)</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): High &gt;22</td>
+<td>valid</td>
+<td>48</td>
+<td>16.1% (Sh 0.6)</td>
+<td>0.0% (Sh 0.0)</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): High &gt;22</td>
+<td>test</td>
+<td>20</td>
+<td>98%*</td>
+<td>48%*</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): Low &lt;15</td>
+<td>train</td>
+<td>278</td>
+<td>2.0% (Sh 0.2)</td>
+<td>-1.7% (Sh -1.2)</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): Low &lt;15</td>
+<td>valid</td>
+<td>249</td>
+<td>7.2% (Sh 0.7)</td>
+<td>0.4% (Sh 0.5)</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): Low &lt;15</td>
+<td>test</td>
+<td>491</td>
+<td>-20.0% (Sh -1.6)</td>
+<td>-0.0% (Sh -0.0)</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): Mid 15-22</td>
+<td>train</td>
+<td>444</td>
+<td>10.3% (Sh 0.6)</td>
+<td>0.7% (Sh 0.2)</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): Mid 15-22</td>
+<td>valid</td>
+<td>195</td>
+<td>4.2% (Sh 0.3)</td>
+<td>2.1% (Sh 1.1)</td>
+</tr>
+<tr>
+<td>Volatility (India VIX): Mid 15-22</td>
+<td>test</td>
+<td>192</td>
+<td>26.4% (Sh 1.7)</td>
+<td>1.7% (Sh 0.9)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Down &lt;-3%</td>
+<td>train</td>
+<td>142</td>
+<td>-22.3% (Sh -0.6)</td>
+<td>8.4% (Sh 0.8)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Down &lt;-3%</td>
+<td>valid</td>
+<td>102</td>
+<td>16.2% (Sh 0.9)</td>
+<td>7.5% (Sh 2.8)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Down &lt;-3%</td>
+<td>test</td>
+<td>137</td>
+<td>-8.5% (Sh -0.5)</td>
+<td>-0.6% (Sh -0.3)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Flat</td>
+<td>train</td>
+<td>449</td>
+<td>15.8% (Sh 1.1)</td>
+<td>1.2% (Sh 0.4)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Flat</td>
+<td>valid</td>
+<td>249</td>
+<td>-5.8% (Sh -0.5)</td>
+<td>-1.0% (Sh -0.4)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Flat</td>
+<td>test</td>
+<td>467</td>
+<td>4.4% (Sh 0.4)</td>
+<td>2.9% (Sh 0.9)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Up &gt;3%</td>
+<td>train</td>
+<td>336</td>
+<td>22.7% (Sh 1.5)</td>
+<td>0.7% (Sh 0.5)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Up &gt;3%</td>
+<td>valid</td>
+<td>141</td>
+<td>22.6% (Sh 1.6)</td>
+<td>0.0% (Sh 0.0)</td>
+</tr>
+<tr>
+<td>Momentum (20d return): Up &gt;3%</td>
+<td>test</td>
+<td>99</td>
+<td>-37.1% (Sh -2.3)</td>
+<td>0.0% (Sh 0.0)</td>
+</tr>
+<tr>
+<td>Drawdown from high: DD &gt;10%</td>
+<td>train</td>
+<td>224</td>
+<td>20.5% (Sh 0.6)</td>
+<td>3.7% (Sh 0.5)</td>
+</tr>
+<tr>
+<td>Drawdown from high: DD &gt;10%</td>
+<td>valid</td>
+<td>104</td>
+<td>35.4% (Sh 1.9)</td>
+<td>4.4% (Sh 1.9)</td>
+</tr>
+<tr>
+<td>Drawdown from high: DD &gt;10%</td>
+<td>test</td>
+<td>384</td>
+<td>0.1% (Sh 0.0)</td>
+<td>0.8% (Sh 0.8)</td>
+</tr>
+<tr>
+<td>Drawdown from high: Near high</td>
+<td>train</td>
+<td>703</td>
+<td>9.9% (Sh 0.7)</td>
+<td>1.6% (Sh 0.5)</td>
+</tr>
+<tr>
+<td>Drawdown from high: Near high</td>
+<td>valid</td>
+<td>388</td>
+<td>-0.7% (Sh -0.1)</td>
+<td>0.1% (Sh 0.1)</td>
+</tr>
+<tr>
+<td>Drawdown from high: Near high</td>
+<td>test</td>
+<td>319</td>
+<td>-8.8% (Sh -0.7)</td>
+<td>3.0% (Sh 0.8)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Under next-open fills the edge is smaller than the 3 to 4% unlevered figure I reported before</strong> (which assumed same-close fills). It is about 2.0%, 1.0% and 1.8% CAGR in train, valid and test, with Sharpe 0.45, 0.50 and 0.66.</li>
+<li><strong>It is in the market only about 7% of days</strong> and has a tiny drawdown (-9% to -2%) because it is mostly flat.</li>
+<li><strong>5x leverage:</strong> this produced a -40% drawdown in train (March 2020), so it is not a safe way to scale it.</li>
+<li><strong>Why it does not clear the gate:</strong> it earns far less than buy-and-hold in train and valid (2.0% vs 11.0% and 1.0% vs 6.0%).</li>
+<li><strong>Where it does help:</strong> it was positive in all three periods overall and in test, when buy-and-hold lost. Regime-wise it is slightly negative in the train bear regime and in low-VIX train days, so it is not a clean crisis hedge.</li>
+</ul>
+<h2>10. Limitations</h2>
+<ul>
+<li><strong>Daily data only.</strong> Fills assume the first print at the open plus 0.01% slippage per side. Real fills in volatile opens can be worse.</li>
+<li><strong>One instrument and one 8.6-year window.</strong> There are 116 monthly expiries and only three regimes' worth of data; 2020 is the only crash, and it sits in train.</li>
+<li><strong>No margin, lot-size, funding or tax modeling.</strong> Returns are on notional exposure.</li>
+<li><strong>Total OI includes calendar-spread and hedging positions.</strong> It is not a clean directional-positioning measure.</li>
+<li><strong>Regime thresholds</strong> (VIX 15/22, momentum +/-3%, drawdown 10%) were fixed once and not tuned. Regime results use many small cells, so single numbers are noisy.</li>
+<li><strong>The test period is not completely untouched</strong> (see section 7).</li>
+</ul>
+<h2>11. Recommended next steps</h2>
+<ol>
+<li><strong>Do not start paper trading on Trend(50)+rising OI as it stands.</strong> It fails the gate (does not beat futures buy-and-hold after costs in all periods).</li>
+<li><strong>Get older futures data (2012 to 2017).</strong> This gives more regimes and a fresh out-of-sample period. It needs a download from the NSE archive, which I did not run. The earlier request was blocked by the permission check.</li>
+<li><strong>Run a proper walk-forward test</strong> (re-tune each year, trade the next year) on the OI family, with a stricter expiry rule such as ignoring OI for the first 3 to 5 days after expiry.</li>
+<li><strong>If paper trading is wanted anyway,</strong> the panic-reversal pair is the only candidate that is positive in all three periods. Run it unlevered, with realistic expectations of about 2%/yr, as a test of execution rather than of returns.</li>
+</ol>
+<h2>12. Files</h2>
+<ul>
+<li>Code: <code>scripts/report_futures.py</code> (all results), <code>scripts/build_report.py</code> (this document)</li>
+<li>Results: <code>results/report_tables.json</code>, <code>results/report_res.pkl</code></li>
+<li>Earlier exploratory runs: <code>scripts/strategy_zoo.py</code>, <code>scripts/profit_search.py</code>, <code>scripts/research2.py</code></li>
+</ul>

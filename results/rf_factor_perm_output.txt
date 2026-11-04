@@ -1,0 +1,83 @@
+20 gates, 6 bases, 8106 base x gate-sets; x 2 sizes x 2 modes = 32424 variants
+evaluated in 28s
+
+BUY&HOLD futures (total return = futures P&L + 6% interest). CAGR/MaxDD/Sharpe:
+   train  16.7/ -38.3/0.93 | valid  11.9/ -15.3/0.88 | test   0.4/ -18.6/0.10 | full  10.6/ -38.3/0.71
+
+=== TOP 15 by train+valid score (test shown only for information) ===
+always long & rupee21<2% & us10y21<0.25 & not_Jan/Feb [full,both]                               train  25.7/ -10.1/2.04 | valid  23.9/  -5.2/2.57 | test   8.1/ -10.0/0.77 | full  19.8/ -10.1/1.73
+always long & vix1d<+8% & us10y21<0.25 & not_Jan/Feb [full,both]                                train  26.9/ -12.0/1.69 | valid  27.2/  -5.2/2.76 | test   7.2/  -9.8/0.71 | full  20.7/ -12.0/1.57
+always long & vix1d<+8% & us10y21<0.25 [full,both]                                              train  26.7/ -12.0/1.61 | valid  27.6/  -5.6/2.51 | test   1.9/ -12.7/0.22 | full  18.9/ -12.7/1.36
+always long & vix1d<+8% & us10y21<0.25 & fii_12m>-2L [full,both]                                train  26.7/ -12.0/1.61 | valid  18.8/  -3.6/3.04 | test   7.6/  -6.4/1.08 | full  19.1/ -12.0/1.54
+always long & rupee21<2% & us10y21<0.25 & not_Jan/Feb [volT15,both]                             train  23.2/  -9.4/2.18 | valid  23.1/  -4.2/2.87 | test   5.4/ -10.5/0.57 | full  17.6/ -10.5/1.76
+always long & rupee21<2% & us10y21<0.25 [volT15,both]                                           train  22.3/  -9.4/1.90 | valid  20.7/  -6.3/2.25 | test  -0.2/ -18.2/0.04 | full  14.8/ -18.2/1.37
+trend50 & rupee21<2% & us10y21<0.25 & not_Jan/Feb [full,both]                                   train  18.7/  -6.5/1.96 | valid  17.3/  -3.0/2.89 | test   5.3/  -6.4/0.65 | full  14.2/  -6.5/1.67
+always long & rupee21<2% & us10y21<0.25 & spx>sma200 [full,both]                                train  22.3/ -10.0/1.88 | valid  15.4/  -3.5/2.59 | test  -1.8/ -21.3/-0.12 | full  13.2/ -21.3/1.29
+trend50 & us10y21<0.25 & not_Jan/Feb [full,both]                                                train  18.3/  -6.5/1.84 | valid  18.1/  -3.8/2.86 | test   4.9/  -6.6/0.61 | full  14.1/  -6.6/1.60
+trend50 & rupee21<2% & us10y21<0.25 & not_Jan/Feb [volT15,both]                                 train  17.7/  -5.9/2.13 | valid  17.5/  -3.0/2.94 | test   4.0/  -6.0/0.54 | full  13.4/  -6.0/1.73
+always long & dxy21<1.5% & us10y21<0.25 & spx>sma200 [full,both]                                train  21.3/  -9.7/1.75 | valid  15.6/  -3.5/2.71 | test   0.2/ -16.1/0.08 | full  13.5/ -16.1/1.31
+trend50 & us10y21<0.25 & not_Jan/Feb [volT15,both]                                              train  17.5/  -6.1/2.00 | valid  18.4/  -3.8/2.90 | test   3.8/  -6.0/0.50 | full  13.4/  -6.1/1.66
+always long & vix1d<+8% & us10y21<0.25 & brent21avg<100 [full,both]                             train  26.7/ -12.0/1.61 | valid  17.0/  -5.6/2.06 | test   2.5/ -10.2/0.28 | full  17.0/ -12.0/1.28
+always long & vix1d<+8% & rupee21<2% & us10y21<0.25 [volT15,both]                               train  20.7/  -9.4/1.83 | valid  21.7/  -4.4/2.50 | test  -1.8/ -16.5/-0.12 | full  13.7/ -16.5/1.33
+always long & us10y21<0.25 & spx>sma200 & not_Jan/Feb [full,both]                               train  21.6/ -10.3/1.84 | valid  16.3/  -3.0/3.20 | test   4.1/ -11.7/0.45 | full  15.0/ -11.7/1.49
+
+=== Does adding factors help? best-by-train+valid for each gate count (test is out-of-sample) ===
+k=0: n=    24  best: mom60>0 [full,both]                                                              test   5.3/  -9.0/0.61 | median test J of all k=0:  -3.8
+k=1: n=   480  best: trend50 & us10y21<0.25 [volT15,both]                                             test   2.0/  -8.6/0.28 | median test J of all k=1:  -3.2
+k=2: n=  4560  best: always long & vix1d<+8% & us10y21<0.25 [full,both]                               test   1.9/ -12.7/0.22 | median test J of all k=2:  -1.6
+k=3: n= 27360  best: always long & rupee21<2% & us10y21<0.25 & not_Jan/Feb [full,both]                test   8.1/ -10.0/0.77 | median test J of all k=3:  -0.5
+
+Gate frequency in top-100 by train+valid: [('us10y21<0.25', 73), ('not_Jan/Feb', 50), ('rupee21<2%', 43), ('spx>sma200', 28), ('vix1d<+8%', 23), ('dxy21<1.5%', 21), ('fii_12m>-2L', 13), ('brent21avg<100', 9), ('OI5 rising', 6), ('brent5<+5%', 4)]
+Top-100 (picked on train+valid): median test CAGR 3.8, median test DD -6.7, share beating B&H test CAGR 87%, share with better test DD 95%
+Spearman(train+valid score, test J) over all variants: 0.275
+
+CHOSEN (best train+valid, any gate count): always long & rupee21<2% & us10y21<0.25 & not_Jan/Feb [full,both]
+    train  25.7/ -10.1/2.04 | valid  23.9/  -5.2/2.57 | test   8.1/ -10.0/0.77 | full  19.8/ -10.1/1.73
+BEST WITH >=1 FACTOR GATE: always long & rupee21<2% & us10y21<0.25 & not_Jan/Feb [full,both]
+    train  25.7/ -10.1/2.04 | valid  23.9/  -5.2/2.57 | test   8.1/ -10.0/0.77 | full  19.8/ -10.1/1.73
+chosen combo's test J ranks at the 40th percentile of all 32424 variants
+
+=== YEARLY WALK-FORWARD (re-pick on all prior years) ===
+  WF 2021: always long & rupee21<2% & us10y21<0.25 [volT15,both]                                      OOS   27.9%  (B&H   24.6%)
+  WF 2022: always long & rupee21<2% & dxy21<1.5% & us10y21<0.25 [volT15,both]                         OOS    3.7%  (B&H    7.0%)
+  WF 2023: always long & rupee21<2% & us10y21<0.25 & not_Jan/Feb [full,both]                          OOS   28.2%  (B&H   16.9%)
+  WF 2024: always long & rupee21<2% & us10y21<0.25 & not_Jan/Feb [full,both]                          OOS   12.6%  (B&H    7.3%)
+  WF 2025: always long & rupee21<2% & us10y21<0.25 & not_Jan/Feb [full,both]                          OOS   16.9%  (B&H    8.5%)
+  WF 2026: always long & OI5 rising & vix1d<+8% & not_Jan/Feb [full,both]                             OOS   -5.0%  (B&H  -13.1%)
+WALK-FORWARD OOS 2021-26: CAGR  13.8%  MaxDD  -11.2%  Sharpe 1.39  | B&H   8.1%   -18.6%  0.63
+
+=== FULL-PERIOD BACKTEST (total-return view; CAGR/MaxDD/Sharpe) ===
+BUY&HOLD               train  16.7/ -38.3/0.93 | valid  11.9/ -15.3/0.88 | test   0.4/ -18.6/0.10 | full  10.6/ -38.3/0.71
+CHOSEN                 train  25.7/ -10.1/2.04 | valid  23.9/  -5.2/2.57 | test   8.1/ -10.0/0.77 | full  19.8/ -10.1/1.73
+BEST>=1 FACTOR         train  25.7/ -10.1/2.04 | valid  23.9/  -5.2/2.57 | test   8.1/ -10.0/0.77 | full  19.8/ -10.1/1.73
+PRIOR (trend50&OI5)    train  11.3/  -8.2/1.47 | valid  12.8/  -2.9/2.25 | test   4.2/  -7.1/0.70 | full   9.4/  -8.2/1.38
+
+=== REGIME-WISE (annualised return % / Sharpe / days). Regime known at the decision day; return = next holding period ===
+-- Trend (vs 200DMA)
+   Bear            | BUY&HOLD   18.7%/ 0.81 | CHOSEN     30.5%/ 1.90 | BEST>=1    30.5%/ 1.90 | PRIOR (t    8.8%/ 1.76   (n=560)
+   Bull            | BUY&HOLD    6.5%/ 0.54 | CHOSEN     17.2%/ 1.68 | BEST>=1    17.2%/ 1.68 | PRIOR (t   10.7%/ 1.39   (n=1607)
+-- Volatility (India VIX)
+   High>=22        | BUY&HOLD   33.9%/ 1.04 | CHOSEN     41.8%/ 2.02 | BEST>=1    41.8%/ 2.02 | PRIOR (t   13.5%/ 1.49   (n=273)
+   Low<15          | BUY&HOLD    2.0%/ 0.24 | CHOSEN      8.2%/ 1.00 | BEST>=1     8.2%/ 1.00 | PRIOR (t    7.7%/ 1.26   (n=1225)
+   Mid15-22        | BUY&HOLD   17.5%/ 1.12 | CHOSEN     32.5%/ 2.53 | BEST>=1    32.5%/ 2.53 | PRIOR (t   11.2%/ 1.50   (n=867)
+-- Momentum (20d)
+   Down<-3%        | BUY&HOLD  -12.7%/-0.33 | CHOSEN     12.2%/ 1.03 | BEST>=1    12.2%/ 1.03 | PRIOR (t    6.1%/ 3.97   (n=340)
+   Flat            | BUY&HOLD   11.3%/ 0.87 | CHOSEN     23.5%/ 2.14 | BEST>=1    23.5%/ 2.14 | PRIOR (t    8.4%/ 1.21   (n=1302)
+   Up>3%           | BUY&HOLD   23.1%/ 1.58 | CHOSEN     18.3%/ 1.45 | BEST>=1    18.3%/ 1.45 | PRIOR (t   13.9%/ 1.59   (n=704)
+-- Drawdown (vs 252d high)
+   Deep>10%        | BUY&HOLD   44.7%/ 1.39 | CHOSEN     55.2%/ 2.73 | BEST>=1    55.2%/ 2.73 | PRIOR (t   11.6%/ 2.00   (n=333)
+   Near-high<5%    | BUY&HOLD    8.9%/ 0.76 | CHOSEN     16.3%/ 1.68 | BEST>=1    16.3%/ 1.68 | PRIOR (t   10.4%/ 1.31   (n=1316)
+   Pullback5-10%   | BUY&HOLD   -0.1%/ 0.07 | CHOSEN     13.1%/ 1.20 | BEST>=1    13.1%/ 1.20 | PRIOR (t    7.6%/ 1.35   (n=658)
+-- Year
+   2017            | BUY&HOLD   22.3%/ 2.33 | CHOSEN     18.6%/ 2.01 | BEST>=1    18.6%/ 2.01 | PRIOR (t   -0.0%/ 0.03   (n=185)
+   2018            | BUY&HOLD    7.6%/ 0.63 | CHOSEN     14.8%/ 1.52 | BEST>=1    14.8%/ 1.52 | PRIOR (t   17.0%/ 2.65   (n=245)
+   2019            | BUY&HOLD   11.7%/ 0.87 | CHOSEN     19.6%/ 1.56 | BEST>=1    19.6%/ 1.56 | PRIOR (t   15.1%/ 2.05   (n=244)
+   2020            | BUY&HOLD   21.0%/ 0.76 | CHOSEN     54.8%/ 2.73 | BEST>=1    54.8%/ 2.73 | PRIOR (t   17.1%/ 1.60   (n=251)
+   2021            | BUY&HOLD   26.6%/ 1.58 | CHOSEN     26.7%/ 2.51 | BEST>=1    26.7%/ 2.51 | PRIOR (t    6.4%/ 0.85   (n=248)
+   2022            | BUY&HOLD    5.9%/ 0.41 | CHOSEN     18.3%/ 1.73 | BEST>=1    18.3%/ 1.73 | PRIOR (t   10.5%/ 1.73   (n=247)
+   2023            | BUY&HOLD   17.0%/ 1.69 | CHOSEN     28.7%/ 3.79 | BEST>=1    28.7%/ 3.79 | PRIOR (t   15.7%/ 2.88   (n=245)
+   2024            | BUY&HOLD    7.8%/ 0.61 | CHOSEN     12.8%/ 1.05 | BEST>=1    12.8%/ 1.05 | PRIOR (t    7.7%/ 0.97   (n=248)
+   2025            | BUY&HOLD    8.2%/ 0.73 | CHOSEN     17.1%/ 1.59 | BEST>=1    17.1%/ 1.59 | PRIOR (t    5.6%/ 0.94   (n=249)
+   2026            | BUY&HOLD  -16.0%/-1.08 | CHOSEN     -6.6%/-0.58 | BEST>=1    -6.6%/-0.58 | PRIOR (t   -1.2%/-0.29   (n=204)
+
+done in 30s
