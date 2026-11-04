@@ -3,7 +3,11 @@
 Research code for a Nifty 50 index-futures strategy project (Supertrend(14,3) baseline, factor filters, and an overnight variant).
 Author: Ankit Garg (GitHub: AnKiT-GaRG2). Research only, not investment advice.
 
-## Headline results (read the caveat first)
+## Current best system (v2-FE, read this first)
+
+Leveraged long/short Supertrend on real Nifty futures at a -17.7% drawdown cap: **43.8% CAGR with realistic costs** (36.7% / Sharpe 1.21 with floor costs), full period 2017-04 to 2026-10. This is v2-FEG: the earlier v2-FE (41.2% realistic / 34.4% floor) plus a long boost of 1.25x when the previous day's opening gap was in its top 20% of the prior year (adopted by the owner on 2026-11-05 after it passed the declared FACT3 rules; see the caveats in `results/rm/V2FE_SPEC.md`: the gain is concentrated in 2020, 2022-23 is slightly worse and nearby cut-offs are not a plateau, so treat it as a weak, possibly regime-specific add-on). The 2024-26 test window gave about 21% at floor costs (24% realistic), unchanged by the boost, which is the more likely live level. Details in "Roadmap implementation and later rounds" below and `results/rm/V2FE_SPEC.md`. The spot-index table that follows is the early overnight study and does not survive real futures prices.
+
+## Early spot-index results (read the caveat first)
 
 Strategy: buy Nifty at 15:15 when Supertrend(14,3) on 15-min bars is green and India VIX did not jump more than 8% the previous day; sell at the next 09:15 open. Costs 0.025%/side, 0.05% roll, carry 4.7% p.a. as in the brief.
 
@@ -69,7 +73,7 @@ Research roadmap ("Nifty 50 Futures Strategy - Research Roadmap"): data pipeline
 
 - The first frozen strategy failed its locked test (NO-GO, `results/rm/FINAL_ROADMAP_REPORT.md`, `FAILURE_LOG.md`).
 - Later rounds, each declared in writing before it ran (`results/rm/PROTOCOL_CHANGES.md`, 706 variants logged in `trials.json`), produced "v2-FE": a leveraged long/short Supertrend system on Nifty futures (long leg Supertrend(14,3) held overnight, short leg only below the 100-day mean, a Nasdaq/US10Y long-leg cut, and a cap of 1x on election-result and Union Budget days). Spec and risk notes: `results/rm/V2FE_SPEC.md`, `PAPER_TRADING_SPEC.md`, event dates and sources: `EVENT_LISTS.md`.
-- At a -17% drawdown cap (floor costs): full period 2017-04 to 2026-10 33.1% CAGR / Sharpe 1.20 (train 43.0%, validate 29.8%, test 2024-26 20.2%); realistic costs 39.7%. The 2024-26 figure is the more likely live level: the train and validate windows were used for tuning and the test window has been looked at many times.
+- At a -17.7% drawdown cap (owner-chosen, scale 1.163, long 2.22x / short 1.11x): full period 2017-04 to 2026-10 **41.2% CAGR with realistic costs**, 34.4% / Sharpe 1.20 with floor costs (train 40.5%, test 2024-26 20.9% at floor costs). The 2024-26 figure is the more likely live level: the train and validate windows were used for tuning and the test window has been looked at many times.
 - 17 further ideas on the long side, short side, filters, sleeves and timing failed pre-declared tests; the one addition that beat a noise benchmark is the scheduled-event cap. The 2012-16 holdout has been kept sealed.
 - `scripts/paper_compare.py` compares a paper-trading fill log with the model month by month.
 - Not investment advice. Backtests on this data include selection effects; read the caveats in the spec files.
