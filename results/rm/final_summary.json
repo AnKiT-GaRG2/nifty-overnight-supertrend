@@ -1,0 +1,168 @@
+{
+ "checks": [
+  [
+   "Sharpe above baseline on test (floor)",
+   false,
+   "-0.09 vs 0.46"
+  ],
+  [
+   "Sharpe above baseline on 2022-01..2026-10 (floor)",
+   false,
+   "0.23 vs 0.57"
+  ],
+  [
+   "Sharpe above baseline on test (realistic costs)",
+   false,
+   "0.09 vs 0.62"
+  ],
+  [
+   "MaxDD better than -15% on every window and better than the baseline's",
+   false,
+   "train: -6.2% vs -13.4%; valid: -5.5% vs -7.7%; test: -8.7% vs -6.6%; recent: -8.7% vs -7.7%; full: -8.7% vs -13.4%"
+  ],
+  [
+   "Walk-forward Sharpe above baseline's, drawdown better than -15%",
+   false,
+   "Sharpe 1.12 vs 1.29; MaxDD -6.2% (baseline -7.7%)"
+  ],
+  [
+   "No calendar year worse than -10%",
+   true,
+   "worst -3.3% (2024)"
+  ],
+  [
+   "Still beats the baseline with doubled costs (test, floor and real)",
+   false,
+   "floor x2: -0.65 vs -0.02; real x2: -0.30 vs 0.28"
+  ],
+  [
+   "No trade lost more than 1% of capital at its stop (gaps reported separately)",
+   true,
+   "max 0.75% at the stop; 1.89% incl. gaps"
+  ]
+ ],
+ "verdict": "NO-GO: not all pass criteria hold",
+ "picks": [
+  {
+   "oos": "2020-04-01..2020-09-30",
+   "train": "2017-04-01..2020-03-31",
+   "p": 80,
+   "k": 2.5,
+   "train_sharpe": 0.7280560401875567
+  },
+  {
+   "oos": "2020-10-01..2021-03-31",
+   "train": "2017-10-01..2020-09-30",
+   "p": 80,
+   "k": 2.5,
+   "train_sharpe": 1.1636729377495945
+  },
+  {
+   "oos": "2021-04-01..2021-09-30",
+   "train": "2018-04-01..2021-03-31",
+   "p": 80,
+   "k": 2.5,
+   "train_sharpe": 1.6712390558279304
+  },
+  {
+   "oos": "2021-10-01..2022-03-31",
+   "train": "2018-10-01..2021-09-30",
+   "p": 80,
+   "k": 2.5,
+   "train_sharpe": 1.9844847505784904
+  },
+  {
+   "oos": "2022-04-01..2022-09-30",
+   "train": "2019-04-01..2022-03-31",
+   "p": 80,
+   "k": 2.5,
+   "train_sharpe": 1.9853564103057617
+  },
+  {
+   "oos": "2022-10-01..2023-03-31",
+   "train": "2019-10-01..2022-09-30",
+   "p": 80,
+   "k": 2.5,
+   "train_sharpe": 2.0225254741513257
+  },
+  {
+   "oos": "2023-04-01..2023-09-30",
+   "train": "2020-04-01..2023-03-31",
+   "p": 80,
+   "k": 2.5,
+   "train_sharpe": 1.773698379126781
+  },
+  {
+   "oos": "2023-10-01..2024-03-31",
+   "train": "2020-10-01..2023-09-30",
+   "p": 80,
+   "k": 2.5,
+   "train_sharpe": 1.5139861844598062
+  },
+  {
+   "oos": "2024-04-01..2024-09-30",
+   "train": "2021-04-01..2024-03-31",
+   "p": 70,
+   "k": 2.5,
+   "train_sharpe": 1.0477470494291385
+  },
+  {
+   "oos": "2024-10-01..2025-03-31",
+   "train": "2021-10-01..2024-09-30",
+   "p": 70,
+   "k": 2.5,
+   "train_sharpe": 0.16290678892093743
+  },
+  {
+   "oos": "2025-04-01..2025-09-30",
+   "train": "2022-04-01..2025-03-31",
+   "p": 70,
+   "k": 2.5,
+   "train_sharpe": -0.16289762388759488
+  },
+  {
+   "oos": "2025-10-01..2026-03-31",
+   "train": "2022-10-01..2025-09-30",
+   "p": 70,
+   "k": 2.5,
+   "train_sharpe": -0.10410437407607763
+  },
+  {
+   "oos": "2026-04-01..2026-09-30",
+   "train": "2023-04-01..2026-03-31",
+   "p": 70,
+   "k": 2.5,
+   "train_sharpe": 0.6308338552577112
+  },
+  {
+   "oos": "2026-10-01..2026-10-31",
+   "train": "2023-10-01..2026-09-30",
+   "p": 70,
+   "k": 2.5,
+   "train_sharpe": 0.31448003576538536
+  }
+ ],
+ "lookahead": {
+  "2025-01-16": {
+   "truncation_strategy": true,
+   "truncation_baseline": true,
+   "shuffle_signals": true,
+   "shuffle_pnl_before": true
+  },
+  "2023-07-17": {
+   "truncation_strategy": true,
+   "truncation_baseline": true,
+   "shuffle_signals": true,
+   "shuffle_pnl_before": true
+  },
+  "2022-08-29": {
+   "truncation_strategy": true,
+   "truncation_baseline": true,
+   "shuffle_signals": true,
+   "shuffle_pnl_before": true
+  }
+ },
+ "pbo": 0.4880952380952381,
+ "dsr": 0.0007790954517008802,
+ "N": 127
+}

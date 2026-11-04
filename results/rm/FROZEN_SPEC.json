@@ -1,0 +1,11 @@
+{
+ "signal": "Supertrend(14,3) Wilder ATR 15-min spot, long-only, stand aside when prior-day India VIX 252d percentile > 80 (B2h)",
+ "k": 2.5,
+ "tv": null,
+ "ov": 0,
+ "dd": false,
+ "dl": 0.0,
+ "frozen": "2026-11-03",
+ "protocol_sha": "260efb8ada2685fd4d57393b2d4f7438fe89eb50b185d3c13dbe6d2103712156",
+ "dataset_sha": "b6ca337fe078228d970d9eae576c4f00ae4c7980710ebc8420c0b34adaf4976b"
+}

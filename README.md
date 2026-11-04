@@ -63,3 +63,13 @@ After the real-futures replay showed the overnight edge was a spot-open artifact
 - Yearly walk-forward of the whole 378-variant selection (2021-26): 7.2% / -12.4% / Sharpe 0.96 vs buy-and-hold 8.1% / -18.6% / 0.63.
 - Stable across 24 neighbouring settings (CAGR 5.9-9.8%); at 3x costs still 6.8%. Shorts reduced Sharpe. Equal-weight blend of three sleeves: 9.1% / -6.2% / 1.40.
 - This is risk-managed long exposure: it cuts drawdown by about 80% for a similar return, it does not produce high CAGR. Daily data only; intraday futures data is still needed for anything faster.
+
+## Roadmap implementation and later rounds (rm_*.py, results/rm/)
+Research roadmap ("Nifty 50 Futures Strategy - Research Roadmap"): data pipeline and synthetic futures anchored to real NSE futures opens/closes (`rm_data.py`), numba engine with 1-minute stop fills and two cost models, "floor" (0.025% per side, 0.05% per roll) and "realistic" (`rm_engine.py`), signals (`rm_signals.py`), protocol-locked idea runner (`rm_ideas.py`), one-shot locked test (`rm_final.py`). Needs `numba`, `scipy`, `pandas`. The `data/` folder (NSE, Yahoo and other raw inputs) is not committed; the `dl_*.py` scripts and `results/rm/PROTOCOL_CHANGES.md` describe how each input was obtained.
+
+- The first frozen strategy failed its locked test (NO-GO, `results/rm/FINAL_ROADMAP_REPORT.md`, `FAILURE_LOG.md`).
+- Later rounds, each declared in writing before it ran (`results/rm/PROTOCOL_CHANGES.md`, 706 variants logged in `trials.json`), produced "v2-FE": a leveraged long/short Supertrend system on Nifty futures (long leg Supertrend(14,3) held overnight, short leg only below the 100-day mean, a Nasdaq/US10Y long-leg cut, and a cap of 1x on election-result and Union Budget days). Spec and risk notes: `results/rm/V2FE_SPEC.md`, `PAPER_TRADING_SPEC.md`, event dates and sources: `EVENT_LISTS.md`.
+- At a -17% drawdown cap (floor costs): full period 2017-04 to 2026-10 33.1% CAGR / Sharpe 1.20 (train 43.0%, validate 29.8%, test 2024-26 20.2%); realistic costs 39.7%. The 2024-26 figure is the more likely live level: the train and validate windows were used for tuning and the test window has been looked at many times.
+- 17 further ideas on the long side, short side, filters, sleeves and timing failed pre-declared tests; the one addition that beat a noise benchmark is the scheduled-event cap. The 2012-16 holdout has been kept sealed.
+- `scripts/paper_compare.py` compares a paper-trading fill log with the model month by month.
+- Not investment advice. Backtests on this data include selection effects; read the caveats in the spec files.

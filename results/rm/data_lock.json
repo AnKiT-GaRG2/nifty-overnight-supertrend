@@ -1,0 +1,2 @@
+{"locked_before": "2017-04-03", "locked_from": "2024-01-01", "set": "2026-11-03", "usable": "2017-04-03..2023-12-31 only",
+ "rule": "No metric, signal, plot or validation may use data dated before 2017-04-03 (pre-2017 data is NOT used for validation any more) or on/after 2024-01-01 (test, locked) until a single final unlock requested by the user. Scripts load the dataset truncated at 2023-12-31 and contain no pre-2017 inputs."}

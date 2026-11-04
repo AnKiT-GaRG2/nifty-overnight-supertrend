@@ -1,0 +1,16 @@
+{
+ "rule": "S2.4+S2.3",
+ "value": 75,
+ "keep": [],
+ "cap": 8,
+ "ov": 6,
+ "risk": 0.005,
+ "k": 2.5,
+ "gates": {
+  "short-leg Sharpe > 0 across neighbour grid (S2 rule)": true,
+  "sell-off capture > up-year cost": true,
+  "short Sharpe > 0 on train": true,
+  "no short loses > 1% incl. gaps (train)": true
+ },
+ "passed_train": true
+}
