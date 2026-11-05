@@ -10,7 +10,7 @@ Nifty 50 index futures only (near-month contract). Capital in the model: Rs 2 cr
 |---|---|---|---|---|
 | Ramp 1 | month 1 | 0.50 | 1.11x capital | 0.56x |
 | Ramp 2 | month 2 | 0.75 | 1.67x | 0.83x |
-| Full | from month 3, only if section 8 checks pass | 1.00 | 2.18x (2.73x on boost days, see below) | 1.09x |
+| Full | from month 3, only if section 8 checks pass | 1.00 | 2.29x (2.87x on boost days, see below) | 1.15x (scale 1.20 from 2026-11-05; was 2.18x / 2.73x / 1.09x) |
 
 Lots = floor(weight x capital / (index level x lot size)). Lot size used by the backtest: 65 **[confirm the exchange's current Nifty lot size]**. At full size, Rs 2 crore:
 | Index level | Long lots (full) | Short lots (full) | Half size (long / short) |
